@@ -9,6 +9,7 @@
     group: root
     mode: 0755
     checksum: "sha256:{{ lookup('url', docker_compose_digest_url) | regex_search('[0-9a-f]{64}') }}"
+  environment: "{{ proxy_env | default({}) }}"
 
 - name: Test the Docker Compose installation
   ansible.builtin.command: docker compose version
