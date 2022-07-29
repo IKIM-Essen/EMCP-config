@@ -13,6 +13,13 @@
   tags:
     - ipagroups
 
+- name: Create service accounts
+  block:
+    - include_tasks: systemusers.yml
+  run_once: true
+  tags:
+    - ipasystemusers
+
 - name: Define policies
   block:
     - include_tasks: policies.yml

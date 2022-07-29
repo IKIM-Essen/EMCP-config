@@ -1,0 +1,41 @@
+---
+- name: Create service accounts listed in the ipasystemusers dictionary
+  community.general.ipa_user:
+    ipa_host: "{{ primary_ipaserver }}"
+    ipa_pass: "{{ ipaadmin_password }}"
+    name: "{{ users_item['name'] }}"
+    loginshell: /usr/sbin/nologin
+    sshpubkey: []
+    validate_certs: false
+    state: present
+  loop: "{{ ipasystemusers }}"
+  loop_control:
+    loop_var: users_item
+
+- name: Make sure the kinit executable is installed
+  ansible.builtin.apt:
+    name: krb5-user
+    state: present
+
+- name: Obtain an admin ticket
+  ansible.builtin.expect:
+    command: "kinit {{ ipaadmin_user }}"
+    responses:
+      Password: "{{ ipaadmin_password }}"
+  changed_when: true
+  no_log: true
+
+- name: Remove service accounts from the ipausers group
+  ansible.builtin.command: "ipa group-remove-member ipausers --users={{ users_item['name'] }}"
+  register: cmd_removemember
+  changed_when: ('Number of members removed 1') in cmd_removemember['stdout_lines']
+  failed_when:
+    - cmd_removemember['rc'] != 0
+    - ('This entry is not a member') not in cmd_removemember['stdout']
+  loop: "{{ ipasystemusers }}"
+  loop_control:
+    loop_var: users_item
+
+- name: Clear the active ticket
+  ansible.builtin.command: kdestroy
+  changed_when: true
