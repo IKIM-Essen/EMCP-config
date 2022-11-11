@@ -15,6 +15,10 @@ local defaults = {
   },
   listenAddress:: '127.0.0.1',
   filesystemMountPointsExclude:: '^/(dev|proc|sys|run/k3s/containerd/.+|var/lib/docker/.+|var/lib/kubelet/pods/.+)($|/)',
+  // NOTE: ignore veth network interface associated with containers.
+  // OVN renames veth.* to <rand-hex>@if<X> where X is /sys/class/net/<if>/ifindex
+  // thus [a-z0-9] regex below
+  ignoredNetworkDevices:: '^(veth.*|[a-f0-9]{15})$',
   port:: 9100,
   commonLabels:: {
     'app.kubernetes.io/name': defaults.name,
@@ -35,10 +39,13 @@ local defaults = {
       // GC values,
       // imageGCLowThresholdPercent: 80
       // imageGCHighThresholdPercent: 85
+      // GC kicks in when imageGCHighThresholdPercent is hit and attempts to free upto imageGCLowThresholdPercent.
       // See https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/ for more details.
-      fsSpaceFillingUpWarningThreshold: 20,
-      fsSpaceFillingUpCriticalThreshold: 15,
-      diskDeviceSelector: 'device=~"mmcblk.p.+|nvme.+|rbd.+|sd.+|vd.+|xvd.+|dm-.+|dasd.+"',
+      // Warn only after imageGCHighThresholdPercent is hit, but filesystem is not freed up for a prolonged duration.
+      fsSpaceFillingUpWarningThreshold: 15,
+      // Send critical alert only after (imageGCHighThresholdPercent + 5) is hit, but filesystem is not freed up for a prolonged duration.
+      fsSpaceFillingUpCriticalThreshold: 10,
+      diskDeviceSelector: 'device=~"(/dev/)?(mmcblk.p.+|nvme.+|rbd.+|sd.+|vd.+|xvd.+|dm-.+|dasd.+)"',
       runbookURLPattern: 'https://runbooks.prometheus-operator.dev/runbooks/node/%s',
     },
   },
@@ -160,6 +167,32 @@ function(params) {
     },
   },
 
+  networkPolicy: {
+    apiVersion: 'networking.k8s.io/v1',
+    kind: 'NetworkPolicy',
+    metadata: ne.service.metadata,
+    spec: {
+      podSelector: {
+        matchLabels: ne._config.selectorLabels,
+      },
+      policyTypes: ['Egress', 'Ingress'],
+      egress: [{}],
+      ingress: [{
+        from: [{
+          podSelector: {
+            matchLabels: {
+              'app.kubernetes.io/name': 'prometheus',
+            },
+          },
+        }],
+        ports: std.map(function(o) {
+          port: o.port,
+          protocol: 'TCP',
+        }, ne.service.spec.ports),
+      }],
+    },
+  },
+
   daemonset:
     local nodeExporter = {
       name: ne._config.name,
@@ -171,11 +204,8 @@ function(params) {
         '--no-collector.wifi',
         '--no-collector.hwmon',
         '--collector.filesystem.mount-points-exclude=' + ne._config.filesystemMountPointsExclude,
-        // NOTE: ignore veth network interface associated with containers.
-        // OVN renames veth.* to <rand-hex>@if<X> where X is /sys/class/net/<if>/ifindex
-        // thus [a-z0-9] regex below
-        '--collector.netclass.ignored-devices=^(veth.*|[a-f0-9]{15})$',
-        '--collector.netdev.device-exclude=^(veth.*|[a-f0-9]{15})$',
+        '--collector.netclass.ignored-devices=' + ne._config.ignoredNetworkDevices,
+        '--collector.netdev.device-exclude=' + ne._config.ignoredNetworkDevices,
       ],
       volumeMounts: [
         { name: 'sys', mountPath: '/host/sys', mountPropagation: 'HostToContainer', readOnly: true },

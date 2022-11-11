@@ -31,6 +31,7 @@ local defaults = {
     nodeExporter: '4m',
     windowsExporter: '4m',
   },
+  containerMetricsPrefix:: '',
 
   prometheusURL:: error 'must provide prometheusURL',
   config:: {
@@ -39,10 +40,10 @@ local defaults = {
         containerQuery: |||
           sum by (<<.GroupBy>>) (
             irate (
-                container_cpu_usage_seconds_total{<<.LabelMatchers>>,container!="",pod!=""}[%(kubelet)s]
+                %(containerMetricsPrefix)scontainer_cpu_usage_seconds_total{<<.LabelMatchers>>,container!="",pod!=""}[%(kubelet)s]
             )
           )
-        ||| % $.rangeIntervals,
+        ||| % { kubelet: $.rangeIntervals.kubelet, containerMetricsPrefix: $.containerMetricsPrefix },
         nodeQuery: |||
           sum by (<<.GroupBy>>) (
             1 - irate(
@@ -57,7 +58,7 @@ local defaults = {
               windows_cpu_time_total{mode="idle", job="windows-exporter",<<.LabelMatchers>>}[%(windowsExporter)s]
             )
           )
-        ||| % $.rangeIntervals,
+        ||| % { nodeExporter: $.rangeIntervals.nodeExporter, windowsExporter: $.rangeIntervals.windowsExporter, containerMetricsPrefix: $.containerMetricsPrefix },
         resources: {
           overrides: {
             node: { resource: 'node' },
@@ -70,9 +71,9 @@ local defaults = {
       memory: {
         containerQuery: |||
           sum by (<<.GroupBy>>) (
-            container_memory_working_set_bytes{<<.LabelMatchers>>,container!="",pod!=""}
+            %(containerMetricsPrefix)scontainer_memory_working_set_bytes{<<.LabelMatchers>>,container!="",pod!=""}
           )
-        |||,
+        ||| % { containerMetricsPrefix: $.containerMetricsPrefix },
         nodeQuery: |||
           sum by (<<.GroupBy>>) (
             node_memory_MemTotal_bytes{job="node-exporter",<<.LabelMatchers>>}
@@ -84,7 +85,7 @@ local defaults = {
             -
             windows_memory_available_bytes{job="windows-exporter",<<.LabelMatchers>>}
           )
-        |||,
+        ||| % { containerMetricsPrefix: $.containerMetricsPrefix },
         resources: {
           overrides: {
             instance: { resource: 'node' },
@@ -206,6 +207,21 @@ function(params) {
     },
   },
 
+  networkPolicy: {
+    apiVersion: 'networking.k8s.io/v1',
+    kind: 'NetworkPolicy',
+    metadata: pa.service.metadata,
+    spec: {
+      podSelector: {
+        matchLabels: pa._config.selectorLabels,
+      },
+      policyTypes: ['Egress', 'Ingress'],
+      egress: [{}],
+      // Prometheus-adapter needs ingress allowed so HPAs can request metrics from it.
+      ingress: [{}],
+    },
+  },
+
   deployment:
     local c = {
       name: pa._config.name,
@@ -220,7 +236,27 @@ function(params) {
         '--tls-cipher-suites=' + std.join(',', pa._config.tlsCipherSuites),
       ],
       resources: pa._config.resources,
-      ports: [{ containerPort: 6443 }],
+      readinessProbe: {
+        httpGet: {
+          path: '/readyz',
+          port: 'https',
+          scheme: 'HTTPS',
+        },
+        initialDelaySeconds: 30,
+        periodSeconds: 5,
+        failureThreshold: 5,
+      },
+      livenessProbe: {
+        httpGet: {
+          path: '/livez',
+          port: 'https',
+          scheme: 'HTTPS',
+        },
+        initialDelaySeconds: 30,
+        periodSeconds: 5,
+        failureThreshold: 5,
+      },
+      ports: [{ containerPort: 6443, name: 'https' }],
       volumeMounts: [
         { name: 'tmpfs', mountPath: '/tmp', readOnly: false },
         { name: 'volume-serving-cert', mountPath: '/var/run/serving-cert', readOnly: false },

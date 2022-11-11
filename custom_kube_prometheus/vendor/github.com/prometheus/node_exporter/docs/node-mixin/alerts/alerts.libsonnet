@@ -8,11 +8,11 @@
             alert: 'NodeFilesystemSpaceFillingUp',
             expr: |||
               (
-                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < %(fsSpaceFillingUpWarningThreshold)d
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < %(fsSpaceFillingUpWarningThreshold)d
               and
-                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 24*60*60) < 0
+                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[6h], 24*60*60) < 0
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -28,11 +28,11 @@
             alert: 'NodeFilesystemSpaceFillingUp',
             expr: |||
               (
-                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < %(fsSpaceFillingUpCriticalThreshold)d
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < %(fsSpaceFillingUpCriticalThreshold)d
               and
-                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 4*60*60) < 0
+                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[6h], 4*60*60) < 0
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -48,9 +48,9 @@
             alert: 'NodeFilesystemAlmostOutOfSpace',
             expr: |||
               (
-                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < %(fsSpaceAvailableCriticalThreshold)d
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < %(fsSpaceAvailableWarningThreshold)d
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
             'for': '30m',
@@ -58,7 +58,7 @@
               severity: 'warning',
             },
             annotations: {
-              summary: 'Filesystem has less than %(fsSpaceAvailableCriticalThreshold)d%% space left.' % $._config,
+              summary: 'Filesystem has less than %(fsSpaceAvailableWarningThreshold)d%% space left.' % $._config,
               description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left.',
             },
           },
@@ -66,9 +66,9 @@
             alert: 'NodeFilesystemAlmostOutOfSpace',
             expr: |||
               (
-                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < %(fsSpaceAvailableWarningThreshold)d
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < %(fsSpaceAvailableCriticalThreshold)d
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
             'for': '30m',
@@ -76,7 +76,7 @@
               severity: '%(nodeCriticalSeverity)s' % $._config,
             },
             annotations: {
-              summary: 'Filesystem has less than %(fsSpaceAvailableWarningThreshold)d%% space left.' % $._config,
+              summary: 'Filesystem has less than %(fsSpaceAvailableCriticalThreshold)d%% space left.' % $._config,
               description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left.',
             },
           },
@@ -84,11 +84,11 @@
             alert: 'NodeFilesystemFilesFillingUp',
             expr: |||
               (
-                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 40
+                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < 40
               and
-                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 24*60*60) < 0
+                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[6h], 24*60*60) < 0
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -104,11 +104,11 @@
             alert: 'NodeFilesystemFilesFillingUp',
             expr: |||
               (
-                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 20
+                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < 20
               and
-                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 4*60*60) < 0
+                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[6h], 4*60*60) < 0
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -124,9 +124,9 @@
             alert: 'NodeFilesystemAlmostOutOfFiles',
             expr: |||
               (
-                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 5
+                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < 5
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -142,9 +142,9 @@
             alert: 'NodeFilesystemAlmostOutOfFiles',
             expr: |||
               (
-                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 3
+                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < 3
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -214,15 +214,15 @@
             alert: 'NodeClockSkewDetected',
             expr: |||
               (
-                node_timex_offset_seconds > 0.05
+                node_timex_offset_seconds{%(nodeExporterSelector)s} > 0.05
               and
-                deriv(node_timex_offset_seconds[5m]) >= 0
+                deriv(node_timex_offset_seconds{%(nodeExporterSelector)s}[5m]) >= 0
               )
               or
               (
-                node_timex_offset_seconds < -0.05
+                node_timex_offset_seconds{%(nodeExporterSelector)s} < -0.05
               and
-                deriv(node_timex_offset_seconds[5m]) <= 0
+                deriv(node_timex_offset_seconds{%(nodeExporterSelector)s}[5m]) <= 0
               )
             ||| % $._config,
             'for': '10m',
@@ -237,9 +237,9 @@
           {
             alert: 'NodeClockNotSynchronising',
             expr: |||
-              min_over_time(node_timex_sync_status[5m]) == 0
+              min_over_time(node_timex_sync_status{%(nodeExporterSelector)s}[5m]) == 0
               and
-              node_timex_maxerror_seconds >= 16
+              node_timex_maxerror_seconds{%(nodeExporterSelector)s} >= 16
             ||| % $._config,
             'for': '10m',
             labels: {
@@ -253,7 +253,7 @@
           {
             alert: 'NodeRAIDDegraded',
             expr: |||
-              node_md_disks_required - ignoring (state) (node_md_disks{state="active"}) > 0
+              node_md_disks_required{%(nodeExporterSelector)s,%(diskDeviceSelector)s} - ignoring (state) (node_md_disks{state="active",%(nodeExporterSelector)s,%(diskDeviceSelector)s}) > 0
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -267,7 +267,7 @@
           {
             alert: 'NodeRAIDDiskFailure',
             expr: |||
-              node_md_disks{state="failed"} > 0
+              node_md_disks{state="failed",%(nodeExporterSelector)s,%(diskDeviceSelector)s} > 0
             ||| % $._config,
             labels: {
               severity: 'warning',
@@ -281,7 +281,7 @@
             alert: 'NodeFileDescriptorLimit',
             expr: |||
               (
-                node_filefd_allocated{job="node-exporter"} * 100 / node_filefd_maximum{job="node-exporter"} > 70
+                node_filefd_allocated{%(nodeExporterSelector)s} * 100 / node_filefd_maximum{%(nodeExporterSelector)s} > 70
               )
             ||| % $._config,
             'for': '15m',
@@ -297,7 +297,7 @@
             alert: 'NodeFileDescriptorLimit',
             expr: |||
               (
-                node_filefd_allocated{job="node-exporter"} * 100 / node_filefd_maximum{job="node-exporter"} > 90
+                node_filefd_allocated{%(nodeExporterSelector)s} * 100 / node_filefd_maximum{%(nodeExporterSelector)s} > 90
               )
             ||| % $._config,
             'for': '15m',

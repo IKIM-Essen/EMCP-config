@@ -20,6 +20,7 @@ local defaults = {
     for labelName in std.objectFields(defaults.commonLabels)
     if !std.setMember(labelName, ['app.kubernetes.io/version'])
   },
+  enableAlertmanagerConfigV1beta1: false,
 };
 
 function(params) {
@@ -28,7 +29,10 @@ function(params) {
 
   // Prefixing with 0 to ensure these manifests are listed and therefore created first.
   '0alertmanagerCustomResourceDefinition': import 'alertmanagers-crd.json',
-  '0alertmanagerConfigCustomResourceDefinition': import 'alertmanagerconfigs-crd.json',
+  '0alertmanagerConfigCustomResourceDefinition': (import 'alertmanagerconfigs-crd.json') +
+                                                 if po.config.enableAlertmanagerConfigV1beta1 then
+                                                   (import 'alertmanagerconfigs-v1beta1-crd.libsonnet')
+                                                 else {},
   '0prometheusCustomResourceDefinition': import 'prometheuses-crd.json',
   '0servicemonitorCustomResourceDefinition': import 'servicemonitors-crd.json',
   '0podmonitorCustomResourceDefinition': import 'podmonitors-crd.json',
@@ -71,6 +75,7 @@ function(params) {
           'alertmanagerconfigs',
           'prometheuses',
           'prometheuses/finalizers',
+          'prometheuses/status',
           'thanosrulers',
           'thanosrulers/finalizers',
           'servicemonitors',
@@ -156,8 +161,8 @@ function(params) {
           metadata: {
             labels: po.config.commonLabels,
             annotations: {
-              "kubectl.kubernetes.io/default-container": container.name,
-            }
+              'kubectl.kubernetes.io/default-container': container.name,
+            },
           },
           spec: {
             containers: [container],
