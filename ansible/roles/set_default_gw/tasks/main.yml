@@ -5,6 +5,7 @@
   loop_control:
     loop_var: set_default_gw_item
   when:
+    - '"kube" not in set_default_gw_item'
     - lookup('vars', 'ansible_' + set_default_gw_item)['active']
     - '"flannel" not in set_default_gw_item'
     - '"cali" not in set_default_gw_item'
