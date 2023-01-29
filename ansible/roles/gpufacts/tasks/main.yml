@@ -1,0 +1,6 @@
+---
+- name: Collect GPU facts
+  become: true
+  block:
+    - ansible.builtin.include_tasks: gpufacts.yml
+  tags: gpufacts

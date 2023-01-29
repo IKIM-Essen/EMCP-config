@@ -1,0 +1,19 @@
+---
+- name: Update initramfs
+  become: true
+  ansible.builtin.command: update-initramfs -u -k all
+  changed_when: true
+
+- name: Update grub
+  become: true
+  ansible.builtin.command: update-grub
+  changed_when: true
+
+- name: Reload /etc/network/interfaces
+  become: true
+  ansible.builtin.command: ifreload -a
+  changed_when: true
+
+- name: Reboot
+  become: true
+  ansible.builtin.reboot:

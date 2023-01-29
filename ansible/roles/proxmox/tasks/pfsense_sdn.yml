@@ -1,0 +1,38 @@
+---
+- name: Install prerequisites for the SDN feature
+  ansible.builtin.apt:
+    name:
+      - libpve-network-perl
+      - ifupdown2
+    state: present
+
+# Since the mountpoint /etc/pve is replicated across all nodes, tasks affecting
+# this path only need to run once.
+- name: Add the SDN configuration snippets
+  run_once: true
+  ansible.builtin.blockinfile:
+    path: "/etc/pve/sdn/{{ proxmox_item }}"
+    block: "{{ lookup('template', proxmox_item ~ '.j2') }}"
+    owner: root
+    group: www-data
+    mode: 0640
+  loop:
+    - zones.cfg
+    - vnets.cfg
+    - subnets.cfg
+  loop_control:
+    loop_var: proxmox_item
+
+- name: Point the main configuration file to the SDN snippet
+  ansible.builtin.lineinfile:
+    path: /etc/network/interfaces
+    line: "source /etc/network/interfaces.d/*"
+    owner: root
+    group: root
+    mode: 0644
+    state: present
+  notify: Reload /etc/network/interfaces
+
+- name: Apply the SDN configuration across the cluster
+  ansible.builtin.command: pvesh set /cluster/sdn
+  changed_when: true

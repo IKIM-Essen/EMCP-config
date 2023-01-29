@@ -1,0 +1,11 @@
+---
+- name: Remove the Proxmox VE Enterprise repository
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/pve-enterprise.list
+    state: absent
+
+- name: Add the Proxmox VE non-subscription repository
+  ansible.builtin.apt_repository:
+    filename: pve-no-subscription
+    repo: "deb http://download.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-no-subscription"
+    state: present

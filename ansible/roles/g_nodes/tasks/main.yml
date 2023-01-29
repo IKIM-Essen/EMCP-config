@@ -4,9 +4,3 @@
   block:
     - ansible.builtin.include_tasks: mount_local.yml
   tags: mount_local
-
-- name: Prepare the host for gathering GPU facts
-  become: true
-  block:
-    - ansible.builtin.include_tasks: gpufacts.yml
-  tags: gpufacts

@@ -1,0 +1,24 @@
+---
+- name: Create the cluster
+  ansible.builtin.command:
+    argv:
+      - pvecm
+      - create
+      - "{{ proxmox_cluster_name }}"
+  register: cluster_create_result
+  changed_when: true
+  when: inventory_hostname == groups[proxmox_inventory_group][0]
+
+- name: Join an existing cluster
+  ansible.builtin.expect:
+    command: "pvecm add {{ groups[proxmox_inventory_group][0] | quote }}"
+    responses:
+      password: "{{ proxmox_root_password }}"
+      continue: "yes"
+  changed_when: true
+  no_log: true
+  when: inventory_hostname != groups[proxmox_inventory_group][0]
+
+- name: Verify that the cluster exists
+  ansible.builtin.command: pvecm status
+  changed_when: false

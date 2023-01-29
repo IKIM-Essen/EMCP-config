@@ -1,0 +1,42 @@
+---
+- name: Create a primary partition for LVM
+  community.general.parted:
+    device: "{{ proxmox_lvm_item['device'] }}"
+    number: 1
+    label: gpt
+    flags: [ "lvm" ]
+    state: present
+
+- name: Create a volume group on the partition
+  vars:
+    volume_group_name: "{{ proxmox_lvm_item['vg_name'] }}"
+  community.general.lvg:
+    vg: "{{ volume_group_name }}"
+    pvs: "{{ proxmox_lvm_item['device'] }}p1"
+    state: present
+
+- name: Create a thin pool on the volume group
+  vars:
+    thinpool_name: "{{ volume_group_name }}thin"
+  community.general.lvol:
+    vg: "{{ volume_group_name }}"
+    thinpool: "{{ thinpool_name }}"
+    size: 100%FREE
+    state: present
+
+- name: Add the thin pool to Proxmox
+  vars:
+    storage_identifier: "{{ inventory_hostname }}-{{ volume_group_name }}-thin"
+  ansible.builtin.command:
+    argv:
+      - pvesm
+      - add
+      - lvmthin
+      - "{{ storage_identifier }}"
+      - --thinpool
+      - "{{ thinpool_name }}"
+      - --vgname
+      - "{{ volume_group_name }}"
+      - --content
+      - rootdir,images
+  changed_when: true

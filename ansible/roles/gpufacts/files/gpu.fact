@@ -1,0 +1,15 @@
+#!/bin/sh
+if ! command -v lspci >/dev/null 2>&1; then
+    echo "lspci is not installed"
+    exit 1
+fi
+
+description_regexp='(3D|VGA compatible) controller \[[[:digit:]]+\]: NVIDIA'
+id_regexp='\[([[:alnum:]]+:[[:alnum:]]+)\]'
+
+cat <<EOF
+{
+    "count": $(lspci -nn | grep --count -E "$description_regexp"),
+    "pciids": [ $(lspci -nn | grep -E "$description_regexp" | sed -E "s/.*${id_regexp}.*/\"\1\"/" | tr '\n' ',' | sed 's/,$//') ]
+}
+EOF

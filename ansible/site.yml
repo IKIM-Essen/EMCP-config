@@ -75,6 +75,7 @@
   gather_facts: true
   environment: "{{ proxy_env | default({}) }}"
   roles:
+    - gpufacts
     - update
     - security
     - g_nodes
@@ -169,3 +170,11 @@
   environment: "{{ proxy_env | default({}) }}"
   roles:
     - telegraf_systemd
+
+- hosts: proxmox
+  remote_user: root
+  gather_facts: true
+  environment: "{{ proxy_env | default({}) }}"
+  roles:
+    - gpufacts
+    - proxmox

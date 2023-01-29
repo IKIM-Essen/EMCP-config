@@ -1,0 +1,79 @@
+---
+- name: Create a blank template for PXE deployment
+  ansible.builtin.command:
+    argv:
+      - qm
+      - create
+      - "9000"
+      - --template
+      - "1"
+      - --bios
+      - ovmf
+      - --boot
+      - order=net0
+      - --cores
+      - "2"
+      - --cpu
+      - cputype=host
+      - --efidisk0
+      - "{{ proxmox_template_storage_id }}:0,efitype=4m,format={{ proxmox_template_storage_format }},pre-enrolled-keys=0"
+      - --machine
+      - q35
+      - --memory
+      - "4096"
+      - --name
+      - pxe-template
+      - --ostype
+      - l26
+      - --sockets
+      - "1"
+  changed_when: true
+
+- name: Download the Ubuntu cloud image
+  ansible.builtin.get_url:
+    url: "{{ proxmox_template_image_url }}"
+    dest: "{{ proxmox_template_image_dest }}"
+    owner: root
+    group: root
+    mode: 0644
+    checksum: "sha256:{{ lookup('url', proxmox_template_image_digest_url) | regex_search(proxmox_template_image_digest_capture, '\\1') | first }}"
+
+- name: Create a cloud-init Ubuntu template
+  ansible.builtin.command:
+    argv:
+      - qm
+      - create
+      - "9001"
+      - --template
+      - "1"
+      - --bios
+      - ovmf
+      - --boot
+      - order=scsi0
+      - --ciuser
+      - ubuntu
+      - --cores
+      - "2"
+      - --cpu
+      - cputype=host
+      - --efidisk0
+      - "{{ proxmox_template_storage_id }}:0,efitype=4m,format={{ proxmox_template_storage_format }},pre-enrolled-keys=0"
+      - --ide2
+      - "{{ proxmox_template_storage_id }}:cloudinit"
+      - --ipconfig0
+      - ip=dhcp
+      - --machine
+      - q35
+      - --memory
+      - "4096"
+      - --name
+      - cloudinit-template
+      - --ostype
+      - l26
+      - --scsi0
+      - "{{ proxmox_template_storage_id }}:0,import-from={{ proxmox_template_image_dest }}"
+      - --scsihw
+      - virtio-scsi-pci
+      - --sockets
+      - "1"
+  changed_when: true

@@ -1,0 +1,35 @@
+---
+- name: Pass the GPU devices to vfio-pci
+  ansible.builtin.template:
+    src: vfio-pci.conf.j2
+    dest: /etc/modprobe.d/vfio.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Update initramfs
+    - Reboot
+
+- name: Load the VFIO kernel module during boot
+  ansible.builtin.copy:
+    src: vfio-modules.conf
+    dest: /etc/modules-load.d/vfio.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Update initramfs
+    - Reboot
+
+- name: Enable IOMMU passthrough mode
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="quiet"$'
+    line: "GRUB_CMDLINE_LINUX_DEFAULT=\"quiet iommu=pt\""
+    owner: root
+    group: root
+    mode: 0644
+    state: present
+  notify:
+    - Update grub
+    - Reboot

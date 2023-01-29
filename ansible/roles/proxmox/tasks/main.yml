@@ -1,0 +1,77 @@
+---
+- name: Partition the disks
+  become: true
+  block:
+    - ansible.builtin.include_tasks: node_disk.yml
+      loop: "{{ proxmox_lvm_devices }}"
+      loop_control:
+        loop_var: proxmox_lvm_item
+  tags:
+    - proxmox
+    - proxmox-disks
+
+- name: Apply node settings
+  become: true
+  block:
+    - ansible.builtin.include_tasks: node_config.yml
+  tags:
+    - proxmox
+    - proxmox-node-settings
+
+- name: Enable PCI passthrough on GPU-equipped nodes
+  become: true
+  block:
+    - ansible.builtin.include_tasks: pci_passthrough.yml
+  when: ansible_local['gpu']['pciids'] is defined
+  tags:
+    - proxmox
+    - proxmox-passthrough
+
+- name: Create the cluster
+  become: true
+  block:
+    - ansible.builtin.include_tasks: cluster_create.yml
+  tags:
+    - proxmox
+    - proxmox-cluster
+
+# After creating the cluster, the mountpoint /etc/pve is replicated
+# across all nodes, therefore this block only needs to run on one node.
+- name: Apply cluster settings
+  become: true
+  run_once: true
+  block:
+    - ansible.builtin.include_tasks: cluster_config.yml
+  tags:
+    - proxmox
+    - proxmox-cluster
+    - proxmox-cluster-settings
+
+- name: Prepare templates
+  become: true
+  block:
+    - ansible.builtin.include_tasks: template.yml
+  when: inventory_hostname == proxmox_template_node
+  tags:
+    - proxmox
+    - proxmox-template
+
+- name: Create a software-defined lan for pfSense
+  become: true
+  block:
+    - ansible.builtin.include_tasks: pfsense_sdn.yml
+  when: proxmox_pfsense_sdn_create
+  tags:
+    - proxmox
+    - proxmox-pfsense
+    - proxmox-pfsense-sdn
+
+- name: Prepare a VM for pfSense
+  become: true
+  block:
+    - ansible.builtin.include_tasks: pfsense_vm.yml
+  when: inventory_hostname == proxmox_pfsense_node
+  tags:
+    - proxmox
+    - proxmox-pfsense
+    - proxmox-pfsense-vm
