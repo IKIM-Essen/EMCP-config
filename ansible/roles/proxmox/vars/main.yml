@@ -1,0 +1,5 @@
+proxmox_pfsense_sdn_vxlan_spec: "{{ proxmox_pfsense_sdn_vnet_name }},mtu={{ proxmox_pfsense_sdn_vxlan_zone_mtu }}"
+proxmox_pfsense_lan_device: "{{ proxmox_pfsense_sdn_create | ternary(proxmox_pfsense_sdn_vxlan_spec, proxmox_pfsense_lan_bridge) }}"
+
+proxmox_template_image_dest: /var/tmp/cloudinit.img
+proxmox_template_image_digest_capture: "([0-9a-f]{64}) \\*{{ proxmox_template_image_name }}"

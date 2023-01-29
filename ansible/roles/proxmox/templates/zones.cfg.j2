@@ -1,0 +1,5 @@
+{% set addrlist = groups[proxmox_inventory_group] | map('extract', hostvars, ['ansible_facts', 'default_ipv4', 'address']) %}
+vxlan: {{ proxmox_pfsense_sdn_vxlan_zone_name }}
+	peers {{ addrlist | join(',') }}
+	ipam pve
+	mtu {{ proxmox_pfsense_sdn_vxlan_zone_mtu }}

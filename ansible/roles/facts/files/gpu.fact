@@ -4,8 +4,14 @@ if ! command -v lspci >/dev/null 2>&1; then
     exit 1
 fi
 
+description_regexp='(3D|VGA compatible) controller \[[[:digit:]]+\]: NVIDIA'
+id_regexp='\[([[:alnum:]]+:[[:alnum:]]+)\]'
+
 # The number of physical GPUs installed
-count=$(lspci | grep --count -E "(3D|VGA compatible) controller: NVIDIA")
+count=$(lspci -nn | grep --count -E "$description_regexp")
+
+# JSON-formatted list of PCI IDs
+pciids="[ $(lspci -nn | grep -E "$description_regexp" | sed -E "s/.*${id_regexp}.*/\"\1\"/" | tr '\n' ',' | sed 's/,$//') ]"
 
 # The number of usable devices
 # If drivers are installed correctly and no devices have been drained
@@ -19,6 +25,7 @@ fi
 cat <<EOF
 {
     "count": $count,
-    "cuda_count": $cuda_count
+    "cuda_count": $cuda_count,
+    "pciids": $pciids
 }
 EOF

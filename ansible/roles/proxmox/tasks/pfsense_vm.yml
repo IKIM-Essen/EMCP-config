@@ -1,0 +1,99 @@
+---
+- name: Add the WAN bridge configuration snippet
+  ansible.builtin.template:
+    src: pfsense-wan.conf.j2
+    dest: /etc/network/interfaces.d/pfsense-wan.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload /etc/network/interfaces
+  when: proxmox_pfsense_wan_interface_name is defined
+
+- name: Add the LAN bridge configuration snippet
+  ansible.builtin.template:
+    src: pfsense-lan.conf.j2
+    dest: /etc/network/interfaces.d/pfsense-lan.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload /etc/network/interfaces
+  when: proxmox_pfsense_lan_interface_name is defined
+
+- name: Point the main configuration file to the added snippets
+  ansible.builtin.lineinfile:
+    path: /etc/network/interfaces
+    line: "source /etc/network/interfaces.d/*"
+    owner: root
+    group: root
+    mode: 0644
+    state: present
+  notify: Reload /etc/network/interfaces
+
+- name: Flush handlers to apply the network configuration before creating the VM
+  ansible.builtin.meta: flush_handlers
+
+- name: Create a VM for pfSense
+  ansible.builtin.command:
+    argv:
+      - qm
+      - create
+      - "100"
+      - --bios
+      - ovmf
+      - --cores
+      - "2"
+      - --cpu
+      - cputype=host
+      - --efidisk0
+      - "{{ proxmox_pfsense_storage_id }}:0,efitype=4m,format={{ proxmox_pfsense_storage_format }},pre-enrolled-keys=0"
+      - --machine
+      - q35
+      - --memory
+      - "4096"
+      - --name
+      - "{{ proxmox_pfsense_vm_name }}"
+      - --net0
+      - "virtio,bridge={{ proxmox_pfsense_wan_bridge }},firewall=0"
+      - --net1
+      - "virtio,bridge={{ proxmox_pfsense_lan_device }},firewall=0"
+      - --ostype
+      - other
+      - --scsi0
+      - "{{ proxmox_pfsense_storage_id }}:{{ proxmox_pfsense_storage_size_gb }},format={{ proxmox_pfsense_storage_format }},iothread=1"
+      - --scsihw
+      - virtio-scsi-single
+      - --sockets
+      - "1"
+      - --vga
+      - qxl
+  changed_when: true
+
+- name: Create a template for a VM in pfSense's LAN
+  ansible.builtin.command:
+    argv:
+      - qm
+      - create
+      - "9100"
+      - --template
+      - "1"
+      - --bios
+      - ovmf
+      - --cores
+      - "2"
+      - --cpu
+      - cputype=host
+      - --efidisk0
+      - "{{ proxmox_pfsense_storage_id }}:0,efitype=4m,format={{ proxmox_pfsense_storage_format }},pre-enrolled-keys=0"
+      - --machine
+      - q35
+      - --memory
+      - "4096"
+      - --name
+      - pfsense-lan-template
+      - --net0
+      - "virtio,bridge={{ proxmox_pfsense_lan_device }},firewall=0"
+      - --ostype
+      - l26
+      - --sockets
+      - "1"
+  changed_when: true

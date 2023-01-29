@@ -1,0 +1,6 @@
+iface {{ proxmox_pfsense_lan_bridge }} inet static
+	address {{ proxmox_pfsense_lan_interface_address }}
+	gateway {{ proxmox_pfsense_lan_interface_gateway }}
+	bridge-ports {{ proxmox_pfsense_lan_interface_name }}
+	bridge-stp off
+	bridge-fd 0

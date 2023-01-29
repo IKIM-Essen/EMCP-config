@@ -1,0 +1,10 @@
+---
+- name: Configure the http proxy
+  ansible.builtin.lineinfile:
+    path: /etc/pve/datacenter.cfg
+    regexp: '^http_proxy:'
+    line: "http_proxy: {{ http_proxy }}"
+    owner: root
+    group: www-data
+    mode: 0640
+    state: present

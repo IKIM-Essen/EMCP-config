@@ -1,0 +1,67 @@
+proxmox_inventory_group: proxmox
+proxmox_cluster_name: cluster
+
+# Example:
+# proxmox_lvm_devices:
+#   - device: /dev/sdb
+#     vg_name: VolumeGroupName
+proxmox_lvm_devices: []
+
+http_proxy_host: proxy.example.org
+http_proxy_port: "3128"
+http_proxy: "http://{{ http_proxy_host }}:{{ http_proxy_port }}"
+
+# Password of the root user on the first node of the Proxmox cluster.
+proxmox_root_password: "{{ vault_proxmox_root_password }}"
+
+# The node which should host the pfSense VM.
+proxmox_pfsense_node: "{{ groups[proxmox_inventory_group][0] }}"
+
+proxmox_pfsense_vm_name: pfsense
+
+# Storage configuration for the pfSense VM on node {{ proxmox_pfsense_node }}.
+proxmox_pfsense_storage_id: local-lvm
+proxmox_pfsense_storage_format: raw
+proxmox_pfsense_storage_size_gb: "32"
+
+# WAN configuration for the pfSense VM on node {{ proxmox_pfsense_node }}.
+# Commented-out values are optional: if defined, a bridge interface is created
+# with the specified name. To use an existing bridge interface, leave the
+# commented-out values undefined.
+proxmox_pfsense_wan_bridge: vmbr1
+# proxmox_pfsense_wan_interface_address: "0.0.0.0/24"
+# proxmox_pfsense_wan_interface_gateway: "0.0.0.0"
+# proxmox_pfsense_wan_interface_name: eth0
+
+# LAN configuration for the pfSense VM on node {{ proxmox_pfsense_node }}.
+# Ignored if proxmox_pfsense_sdn_create is true.
+# Commented-out values are optional: if defined, a bridge interface is created
+# with the specified name. To use an existing bridge interface, leave the
+# commented-out values undefined.
+proxmox_pfsense_lan_bridge: vmbr2
+# proxmox_pfsense_lan_interface_address: "0.0.0.0/24"
+# proxmox_pfsense_lan_interface_gateway: "0.0.0.0"
+# proxmox_pfsense_lan_interface_name: eth1
+
+# If proxmox_pfsense_sdn_create is true, the LAN interface for pfSense is not
+# assigned to proxmox_pfsense_lan_bridge. Instead, a software-defined VXLAN
+# is created between the Proxmox nodes.
+# Due to VXLAN incapsulation, the value of proxmox_pfsense_sdn_vxlan_zone_mtu
+# must be 50 bytes lower than the MTU of the underlying data link.
+# All VMs in the VXLAN must be configured with the same MTU value.
+proxmox_pfsense_sdn_create: false
+proxmox_pfsense_sdn_vxlan_zone_name: pfvzone
+proxmox_pfsense_sdn_vxlan_zone_mtu: "{{ hostvars[proxmox_pfsense_node]['ansible_facts']['default_ipv4']['mtu'] - 50 }}"
+proxmox_pfsense_sdn_vnet_name: pfvnet
+proxmox_pfsense_sdn_vnet_tag: "10"
+
+# A node for VM templates.
+proxmox_template_node: "{{ groups[proxmox_inventory_group][0] }}"
+
+# Storage configuration for templates.
+proxmox_template_storage_id: local-lvm
+proxmox_template_storage_format: raw
+
+proxmox_template_image_name: jammy-server-cloudimg-amd64.img
+proxmox_template_image_url: "https://cloud-images.ubuntu.com/jammy/current/{{ proxmox_template_image_name }}"
+proxmox_template_image_digest_url: https://cloud-images.ubuntu.com/jammy/current/SHA256SUMS
