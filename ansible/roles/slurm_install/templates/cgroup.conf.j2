@@ -1,0 +1,8 @@
+CgroupAutomount=yes
+
+ConstrainCores=yes
+ConstrainRAMSpace=yes
+{% set gpu_count = ansible_local['gpu']['count'] | default(0) %}
+{% if gpu_count > 0 %}
+ConstrainDevices=yes
+{% endif %}
