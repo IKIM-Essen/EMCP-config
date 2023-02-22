@@ -4,7 +4,7 @@
     device: "{{ proxmox_lvm_item['device'] }}"
     number: 1
     label: gpt
-    flags: [ "lvm" ]
+    flags: [lvm]
     state: present
 
 - name: Create a volume group on the partition
