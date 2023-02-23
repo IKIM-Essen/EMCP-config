@@ -1,0 +1,15 @@
+- name: Configure sshd
+  ansible.builtin.template:
+    src: sshd.j2
+    dest: /etc/pam.d/sshd
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Configure yubikey mappings
+  ansible.builtin.template:
+    src: yubikey_mappings.j2
+    dest: /etc/yubikey_mappings
+    owner: root
+    group: root
+    mode: 0644
