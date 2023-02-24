@@ -1,0 +1,35 @@
+---
+- name: Add the Helm repository
+  kubernetes.core.helm_repository:
+    repo_name: heartex
+    repo_url: https://charts.heartex.com
+    repo_state: present
+
+- name: Create the namespace
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ labelstudio_namespace }}"
+
+- name: Create S3 key Secret
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition: "{{ lookup('template', 's3_key_secret.yml.j2') | from_yaml }}"
+
+- name: Install the Helm chart
+  kubernetes.core.helm:
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    release_name: "{{ labelstudio_deployment_name }}"
+    release_namespace: "{{ labelstudio_namespace }}"
+    chart_ref: heartex/label-studio
+    chart_version: "{{ labelstudio_chart_version }}"
+    values: "{{ lookup('template', 'labelstudio_values.yml.j2') | from_yaml }}"
+    atomic: true
+    update_repo_cache: true
+    wait: true
+    release_state: present

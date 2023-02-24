@@ -1,0 +1,37 @@
+# See https://github.com/heartexlabs/charts/tree/master/heartex/label-studio
+# for the complete chart reference.
+
+labelstudio_chart_version: "1.0.11"
+labelstudio_deployment_name: labelstudio
+labelstudio_namespace: labelstudio
+labelstudio_ingress_path: labelstudio
+
+labelstudio_public_url: "{{ undef }}"
+
+# The type of storage for files directly uploaded to Label Studio.
+# Either "volume" or "s3". If "volume", the "labelstudio_storage_volume_"
+# variables are used, otherwise the "labelstudio_storage_s3_" variant is used.
+# Note that it's possible to use S3 storage regardless of this configuration;
+# for example, S3 buckets can be pre-populated and configured as data source
+# in the settings of individual Label Studio projects.
+labelstudio_storage_type: volume
+
+labelstudio_storage_volume_size: 250Mi
+
+labelstudio_storage_s3_secret_name: labelstudio-storage-s3
+labelstudio_storage_s3_region: "us-east-1"
+labelstudio_storage_s3_endpoint: ""
+labelstudio_storage_s3_bucket: ""
+labelstudio_storage_s3_access_key: ""
+labelstudio_storage_s3_secret_key: ""
+
+# The Label Studio app container may fail to start correctly if fewer than 16G
+# of memory are scheduled.
+labelstudio_request_memory: 16Gi
+labelstudio_request_cpu: 4
+labelstudio_limit_memory: 64Gi
+labelstudio_limit_cpu: 32
+
+labelstudio_featureflags:
+  # Source: https://github.com/heartexlabs/label-studio/issues/3242
+  ff_front_dev_1470_dm_pagination_010422_short: true

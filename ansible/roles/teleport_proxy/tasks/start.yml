@@ -1,0 +1,31 @@
+- name: Add the configuration file
+  ansible.builtin.template:
+    src: teleport.yaml.j2
+    dest: /etc/teleport.yaml
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload Teleport Proxy
+
+- name: Enable and start the service
+  ansible.builtin.systemd:
+    name: teleport
+    state: started
+    enabled: true
+
+- name: Write the access policy file to disk
+  ansible.builtin.template:
+    src: roles.yaml.j2
+    dest: /tmp/roles.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Apply access policies
+  ansible.builtin.command:
+    argv:
+      - tctl
+      - create
+      - -f
+      - /tmp/roles.yaml
+  changed_when: true

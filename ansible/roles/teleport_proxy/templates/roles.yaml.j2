@@ -1,0 +1,7 @@
+kind: role
+version: v6
+metadata:
+  name: {{ teleport_role_name }}
+spec:
+  allow:
+    app_labels: {{ teleport_role_labels | default({}) | to_yaml }}

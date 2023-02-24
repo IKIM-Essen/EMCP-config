@@ -1,0 +1,5 @@
+- name: Reload Teleport Proxy
+  become: true
+  ansible.builtin.systemd:
+    name: teleport
+    state: reloaded

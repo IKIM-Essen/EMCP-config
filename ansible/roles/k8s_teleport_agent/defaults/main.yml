@@ -1,0 +1,25 @@
+# See https://github.com/gravitational/teleport/tree/master/examples/chart/teleport-kube-agent
+# for the complete chart reference.
+teleport_agent_chart_version: "12.1.1"
+teleport_agent_namespace: teleport-agent
+teleport_proxy_host: tele.example.com
+teleport_proxy_port: 443
+
+# The URL used by the Teleport agent to reach the target app
+teleport_app_uri: http://localhost:8080
+
+# The app name is included in the public URL constructed by the Teleport Proxy.
+teleport_app_name: app
+
+# Labels can be used for controlling access to the app.
+teleport_app_labels: { env: default }
+
+# A short-lived join token is obtained by executing `tctl tokens add --type=app`
+# on the Teleport Proxy server.
+teleport_join_token: "{{ undef }}"
+
+# This rewrite specification forces the Host and Origin headers to match the
+# public-facing URL of the application in order to prevent CORS errors.
+teleport_app_rewrite_headers:
+  - "Host: {{ teleport_app_name }}.{{ teleport_proxy_host }}"
+  - "Origin: https://{{ teleport_app_name }}.{{ teleport_proxy_host }}"

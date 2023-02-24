@@ -1,0 +1,17 @@
+---
+- hosts: teleport_proxy
+  environment: "{{ proxy_env | default({}) }}"
+  roles:
+    - teleport_proxy
+
+- hosts: primary_rke_server
+  environment: "{{ proxy_env | default({}) }}"
+  vars:
+    labelstudio_ingress_path: kiadeku-label
+    labelstudio_public_url: "https://{{ labelstudio_ingress_path }}.{{ teleport_proxy_host }}"
+    teleport_app_name: "{{ labelstudio_ingress_path }}"
+    teleport_app_uri: "http://{{ labelstudio_service_name }}.{{ labelstudio_namespace }}.svc.cluster.local"
+    teleport_app_labels: { project: kiadeku }
+  roles:
+    - k8s_labelstudio
+    - k8s_teleport_agent

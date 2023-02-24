@@ -1,0 +1,32 @@
+global:
+  extraEnvironmentVars:
+    LABEL_STUDIO_HOST: {{ labelstudio_public_url }}
+    HTTP_PROXY: {{ http_proxy }}
+    HTTPS_PROXY: {{ http_proxy }}
+    NO_PROXY: {{ no_proxy }}
+
+  featureFlags: {{ labelstudio_featureflags | to_yaml }}
+
+  persistence:
+    enabled: true
+    type: {{ labelstudio_storage_type }}
+    config:
+      volume:
+        size: {{ labelstudio_storage_volume_size }}
+      s3:
+        accessKeyExistingSecret: "{{ labelstudio_storage_s3_secret_name }}"
+        accessKeyExistingSecretKey: access-key
+        secretKeyExistingSecret: "{{ labelstudio_storage_s3_secret_name }}"
+        secretKeyExistingSecretKey: secret-key
+        region: "{{ labelstudio_storage_s3_region }}"
+        bucket: "{{ labelstudio_storage_s3_bucket }}"
+        endpointUrl: "{{ labelstudio_storage_s3_endpoint }}"
+
+app:
+  resources:
+    requests:
+      memory: "{{ labelstudio_request_memory }}"
+      cpu: "{{ labelstudio_request_cpu }}"
+    limits:
+      memory: "{{ labelstudio_limit_memory }}"
+      cpu: "{{ labelstudio_limit_cpu }}"

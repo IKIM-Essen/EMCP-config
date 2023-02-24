@@ -1,0 +1,13 @@
+teleport_version_major: "12"
+
+teleport_proxy_public_fqdn: tele.example.org
+teleport_proxy_acme_email: web@example.org
+
+teleport_role_name: env-default
+teleport_role_labels: { env: default }
+
+teleport_user_registration_token_ttl: 1h
+
+teleport_users:
+  - username: teleport-admin
+    roles: editor,access
