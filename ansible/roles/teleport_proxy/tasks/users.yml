@@ -1,0 +1,16 @@
+- name: Create a user
+  ansible.builtin.command:
+    argv:
+      - tctl
+      - users
+      - add
+      - "{{ teleportproxy_user['username'] }}"
+      - "--roles={{ teleportproxy_user['roles'] }}"
+      - "--ttl={{ teleport_user_registration_token_ttl }}"
+  register: cmd_users_add
+  changed_when: true
+
+- name: Display the account creation URL
+  ansible.builtin.debug:
+    var: cmd_users_add['stdout']
+  when: cmd_users_add['stdout'] is defined

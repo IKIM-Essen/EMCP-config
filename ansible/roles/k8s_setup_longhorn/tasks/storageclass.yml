@@ -1,0 +1,5 @@
+- name: Add a single-replica StorageClass for non-critical volumes
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition: "{{ lookup('template', 'storageclass_nonredundant.yml.j2') | from_yaml }}"

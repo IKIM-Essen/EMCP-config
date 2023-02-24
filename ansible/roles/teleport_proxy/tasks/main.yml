@@ -1,0 +1,37 @@
+---
+- name: Install Teleport
+  block:
+    - ansible.builtin.include_tasks: install.yml
+  become: true
+  tags:
+    - teleport
+    - teleport-proxy-install
+
+- name: Start the Teleport Proxy service
+  block:
+    - ansible.builtin.include_tasks: start.yml
+  become: true
+  tags:
+    - teleport
+    - teleport-proxy-start
+
+- name: Generate a join token
+  block:
+    - ansible.builtin.include_tasks: token.yml
+  become: true
+  when: teleport_proxy_role
+  tags:
+    - teleport
+    - teleport-proxy-token
+
+- name: Create users
+  block:
+    - ansible.builtin.include_tasks: users.yml
+      loop: "{{ teleport_users }}"
+      loop_control:
+        loop_var: teleportproxy_user
+  become: true
+  when: teleport_proxy_role
+  tags:
+    - teleport
+    - teleport-users

@@ -1,0 +1,5 @@
+- name: Deploy Label Studio
+  block:
+    - ansible.builtin.include_tasks: labelstudio.yml
+  tags:
+    - labelstudio

@@ -1,0 +1,26 @@
+---
+- name: Add the Helm repository
+  kubernetes.core.helm_repository:
+    repo_name: teleport
+    repo_url: https://charts.releases.teleport.dev
+    repo_state: present
+
+- name: Create the join token Secret
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition: "{{ lookup('template', 'join_token_secret.yml.j2') | from_yaml }}"
+
+- name: Install the Helm chart
+  kubernetes.core.helm:
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    release_name: teleport-agent
+    release_namespace: "{{ teleport_agent_namespace }}"
+    chart_ref: teleport/teleport-kube-agent
+    chart_version: "{{ teleport_agent_chart_version }}"
+    values: "{{ lookup('template', 'teleport_agent_values.yml.j2') | from_yaml }}"
+    atomic: true
+    create_namespace: true
+    update_repo_cache: true
+    wait: true
+    release_state: present

@@ -1,0 +1,20 @@
+# Reference: https://goteleport.com/docs/reference/config/
+version: v3
+auth_service:
+  enabled: true
+  listen_addr: 0.0.0.0:3025
+  cluster_name: {{ teleport_proxy_public_fqdn }}
+  proxy_listener_mode: multiplex
+  authentication:
+    second_factor: "on"
+    webauthn:
+      rp_id: {{ teleport_proxy_public_fqdn }}
+ssh_service:
+  enabled: false
+proxy_service:
+  enabled: true
+  web_listen_addr: 0.0.0.0:443
+  public_addr: {{ teleport_proxy_public_fqdn }}:443
+  acme:
+    enabled: true
+    email: {{ teleport_proxy_acme_email }}

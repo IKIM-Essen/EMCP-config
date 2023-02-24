@@ -1,0 +1,19 @@
+- name: Download the signing key
+  ansible.builtin.get_url:
+    url: https://apt.releases.teleport.dev/gpg
+    dest: "{{ teleport_signing_key_dest }}"
+    force: true
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Add the Teleport repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ teleport_signing_key_dest }}] https://apt.releases.teleport.dev/{{ ansible_facts['distribution'] | lower }} {{ ansible_facts['distribution_release'] }} stable/v{{ teleport_version_major }}"
+    filename: teleport
+    state: present
+
+- name: Install Teleport
+  ansible.builtin.apt:
+    name: teleport
+    state: present

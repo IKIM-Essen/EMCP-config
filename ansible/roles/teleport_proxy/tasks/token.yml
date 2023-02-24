@@ -1,0 +1,14 @@
+- name: Generate a token
+  ansible.builtin.command:
+    argv:
+      - tctl
+      - tokens
+      - add
+      - --type=app
+  register: cmd_token_add
+  changed_when: true
+
+- name: Parse the token
+  ansible.builtin.set_fact:
+    teleport_token: "{{ cmd_token_add['stdout'] | regex_search('^The invite token: (.*)$') }}"
+  when: cmd_token_add['stdout'] is defined

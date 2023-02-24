@@ -1,0 +1,6 @@
+- name: Deploy the Teleport Kubernetes Agent
+  block:
+    - ansible.builtin.include_tasks: agent.yml
+  tags:
+    - teleport
+    - teleport-agent

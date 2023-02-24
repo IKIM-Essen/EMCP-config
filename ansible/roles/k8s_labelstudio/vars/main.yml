@@ -1,0 +1,1 @@
+labelstudio_service_name: "{{ labelstudio_deployment_name }}-ls-app"
