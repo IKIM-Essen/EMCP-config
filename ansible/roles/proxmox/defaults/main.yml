@@ -17,8 +17,6 @@ proxmox_root_password: "{{ vault_proxmox_root_password }}"
 # The node which should host the pfSense VM.
 proxmox_pfsense_node: "{{ groups[proxmox_inventory_group][0] }}"
 
-proxmox_pfsense_vm_name: pfsense
-
 # Storage configuration for the pfSense VM on node {{ proxmox_pfsense_node }}.
 proxmox_pfsense_storage_id: local-lvm
 proxmox_pfsense_storage_format: raw

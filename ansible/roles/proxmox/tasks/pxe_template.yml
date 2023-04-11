@@ -1,0 +1,30 @@
+---
+- name: Create a blank template for PXE deployment
+  ansible.builtin.command:
+    argv:
+      - qm
+      - create
+      - "9100"
+      - --template
+      - "1"
+      - --bios
+      - ovmf
+      - --boot
+      - order=net0
+      - --cores
+      - "4"
+      - --cpu
+      - cputype=host
+      - --efidisk0
+      - "{{ proxmox_template_storage_id }}:0,efitype=4m,format={{ proxmox_template_storage_format }},pre-enrolled-keys=0"
+      - --machine
+      - q35
+      - --memory
+      - "8192"
+      - --name
+      - pxe-template
+      - --ostype
+      - l26
+      - --sockets
+      - "1"
+  changed_when: true

@@ -32,12 +32,14 @@
 - name: Flush handlers to apply the network configuration before creating the VM
   ansible.builtin.meta: flush_handlers
 
-- name: Create a VM for pfSense
+- name: Create a template for a pfSense VM
   ansible.builtin.command:
     argv:
       - qm
       - create
-      - "100"
+      - "9200"
+      - --template
+      - "1"
       - --bios
       - ovmf
       - --cores
@@ -51,7 +53,7 @@
       - --memory
       - "4096"
       - --name
-      - "{{ proxmox_pfsense_vm_name }}"
+      - pfsense-template
       - --net0
       - "virtio,bridge={{ proxmox_pfsense_wan_bridge }},firewall=0"
       - --net1
@@ -73,13 +75,13 @@
     argv:
       - qm
       - create
-      - "9100"
+      - "9201"
       - --template
       - "1"
       - --bios
       - ovmf
       - --cores
-      - "2"
+      - "4"
       - --cpu
       - cputype=host
       - --efidisk0
@@ -87,7 +89,7 @@
       - --machine
       - q35
       - --memory
-      - "4096"
+      - "8192"
       - --name
       - pfsense-lan-template
       - --net0

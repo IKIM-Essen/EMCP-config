@@ -47,14 +47,23 @@
     - proxmox-cluster
     - proxmox-cluster-settings
 
-- name: Prepare templates
+- name: Prepare a template for a PXE-provisioned VM
   become: true
   block:
-    - ansible.builtin.include_tasks: template.yml
+    - ansible.builtin.include_tasks: pxe_template.yml
   when: inventory_hostname == proxmox_template_node
   tags:
     - proxmox
-    - proxmox-template
+    - proxmox-pxe-template
+
+- name: Prepare a template for a JIP VM
+  become: true
+  block:
+    - ansible.builtin.include_tasks: jip_template.yml
+  when: inventory_hostname == proxmox_template_node
+  tags:
+    - proxmox
+    - proxmox-jip-template
 
 - name: Create a software-defined lan for pfSense
   become: true
@@ -66,12 +75,12 @@
     - proxmox-pfsense
     - proxmox-pfsense-sdn
 
-- name: Prepare a VM for pfSense
+- name: Prepare a template for a pfSense VM
   become: true
   block:
-    - ansible.builtin.include_tasks: pfsense_vm.yml
+    - ansible.builtin.include_tasks: pfsense_template.yml
   when: inventory_hostname == proxmox_pfsense_node
   tags:
     - proxmox
     - proxmox-pfsense
-    - proxmox-pfsense-vm
+    - proxmox-pfsense-template

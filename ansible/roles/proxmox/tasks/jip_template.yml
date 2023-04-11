@@ -1,34 +1,4 @@
 ---
-- name: Create a blank template for PXE deployment
-  ansible.builtin.command:
-    argv:
-      - qm
-      - create
-      - "9000"
-      - --template
-      - "1"
-      - --bios
-      - ovmf
-      - --boot
-      - order=net0
-      - --cores
-      - "2"
-      - --cpu
-      - cputype=host
-      - --efidisk0
-      - "{{ proxmox_template_storage_id }}:0,efitype=4m,format={{ proxmox_template_storage_format }},pre-enrolled-keys=0"
-      - --machine
-      - q35
-      - --memory
-      - "4096"
-      - --name
-      - pxe-template
-      - --ostype
-      - l26
-      - --sockets
-      - "1"
-  changed_when: true
-
 - name: Download the Ubuntu cloud image
   ansible.builtin.get_url:
     url: "{{ proxmox_template_image_url }}"
@@ -38,12 +8,12 @@
     mode: 0644
     checksum: "sha256:{{ lookup('url', proxmox_template_image_digest_url) | regex_search(proxmox_template_image_digest_capture, '\\1') | first }}"
 
-- name: Create a cloud-init Ubuntu template
+- name: Create a cloud-init Ubuntu template for installing JIP
   ansible.builtin.command:
     argv:
       - qm
       - create
-      - "9001"
+      - "9300"
       - --template
       - "1"
       - --bios
@@ -53,7 +23,7 @@
       - --ciuser
       - ubuntu
       - --cores
-      - "2"
+      - "16"
       - --cpu
       - cputype=host
       - --efidisk0
@@ -65,9 +35,9 @@
       - --machine
       - q35
       - --memory
-      - "4096"
+      - "32768"
       - --name
-      - cloudinit-template
+      - jip-template
       - --ostype
       - l26
       - --scsi0
