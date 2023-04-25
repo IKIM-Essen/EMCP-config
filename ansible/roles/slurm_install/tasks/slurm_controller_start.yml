@@ -1,6 +1,0 @@
----
-- name: Start the controller daemon
-  ignore_errors: true  # noqa: ignore-errors
-  community.general.supervisorctl:
-    name: slurmctld
-    state: started

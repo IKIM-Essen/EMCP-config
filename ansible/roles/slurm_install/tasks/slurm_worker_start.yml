@@ -1,6 +1,0 @@
----
-- name: Start and enable the worker daemon
-  ansible.builtin.systemd:
-    name: slurmd
-    state: started
-    enabled: true

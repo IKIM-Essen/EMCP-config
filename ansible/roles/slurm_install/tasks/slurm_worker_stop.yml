@@ -1,0 +1,6 @@
+---
+- name: Stop and disable the worker daemon
+  ansible.builtin.systemd:
+    name: slurmd
+    state: stopped
+    enabled: false

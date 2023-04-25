@@ -10,33 +10,25 @@
   community.general.supervisorctl:
     name: slurmctld
     state: stopped
+  when: not slurm_upgrade
 
 - name: restart slurmdbd
   become: true
   community.general.supervisorctl:
     name: slurmdbd
     state: restarted
+  when: not slurm_upgrade
 
 - name: restart slurmd
   become: true
   ansible.builtin.systemd:
     name: slurmd
     state: restarted
+  when: not slurm_upgrade
 
 - name: start slurmctld
   become: true
   community.general.supervisorctl:
     name: slurmctld
     state: started
-
-- name: restart munge systemd
-  become: true
-  ansible.builtin.systemd:
-    name: munge
-    state: restarted
-
-- name: restart munge supervisord
-  become: true
-  community.general.supervisorctl:
-    name: munged
-    state: restarted
+  when: not slurm_upgrade

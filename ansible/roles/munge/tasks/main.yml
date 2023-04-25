@@ -1,0 +1,13 @@
+---
+- name: Configure munge
+  become: true
+  block:
+    - ansible.builtin.include_tasks: munge_supervisord.yml
+      when: inventory_hostname in groups[slurm_dbd_group_name]
+    - ansible.builtin.include_tasks: munge_systemd.yml
+      when: inventory_hostname in groups[slurm_worker_group_name]
+    - ansible.builtin.include_tasks: munge_supervisord.yml
+      when: inventory_hostname in groups[slurm_controller_group_name]
+  tags:
+    - slurm
+    - slurm-munge
