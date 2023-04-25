@@ -1,0 +1,32 @@
+---
+- name: Create the working directory to test Pytorch Framework
+  ansible.builtin.file:
+    path: "{{ gputest_workdir_path }}/pytorch_GPUNET"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Add the scripts for corresponding DL Framework test
+  ansible.builtin.copy:
+    src: gpuNet_docker.sh
+    dest: "{{ gputest_workdir_path }}/pytorch_GPUNET"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create the working directory to test TensorFlow Framework
+  ansible.builtin.file:
+    path: "{{ gputest_workdir_path }}/tensorflow_SSD"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Add the scripts for corresponding TensorFlow Framework test
+  ansible.builtin.copy:
+    src: SSD_docker.sh
+    dest: "{{ gputest_workdir_path }}/tensorflow_SSD"
+    owner: root
+    group: root
+    mode: 0755

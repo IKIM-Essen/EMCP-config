@@ -10,3 +10,10 @@
   block:
     - ansible.builtin.include_tasks: gpufacts.yml
   tags: gpufacts
+
+- name: Preparing the host for Nvidia-DeepLearning frameworks test
+  become: true
+  become_user: "{{ gputest_workdir_owner }}"
+  block:
+    - ansible.builtin.include_tasks: gpu_test.yml
+  tags: gpu_test
