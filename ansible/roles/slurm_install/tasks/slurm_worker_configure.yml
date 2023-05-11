@@ -1,7 +1,7 @@
 ---
 - name: Add the cgroup configuration file
-  ansible.builtin.copy:
-    src: cgroup.conf
+  ansible.builtin.template:
+    src: cgroup.conf.j2
     dest: /etc/slurm-llnl/cgroup.conf
     owner: root
     group: root
