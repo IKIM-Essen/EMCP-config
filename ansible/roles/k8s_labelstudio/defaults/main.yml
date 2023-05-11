@@ -4,7 +4,6 @@
 labelstudio_chart_version: "1.0.11"
 labelstudio_deployment_name: labelstudio
 labelstudio_namespace: labelstudio
-labelstudio_ingress_path: labelstudio
 
 labelstudio_public_url: "{{ undef }}"
 
