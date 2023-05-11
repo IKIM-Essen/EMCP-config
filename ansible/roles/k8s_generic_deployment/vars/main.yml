@@ -1,0 +1,1 @@
+k8s_deployment_traefik_strip_prefix_middleware_name: "{{ k8s_deployment_ingress_name }}-strip-prefix"

@@ -1,0 +1,5 @@
+- name: Create a Deployment
+  block:
+    - ansible.builtin.include_tasks: deployment.yml
+  tags:
+    - k8s-generic-deployment
