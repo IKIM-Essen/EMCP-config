@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ k8s_deployment_name }}
+  namespace: {{ k8s_deployment_namespace }}
+  labels: {{ k8s_deployment_labels | to_yaml }}
+spec:
+  replicas: {{ k8s_deployment_replicas }}
+  selector:
+    matchLabels: {{ k8s_deployment_labels | to_yaml }}
+  template:
+    metadata:
+      labels: {{ k8s_deployment_labels | to_yaml }}
+    spec:
+      containers:
+        - name: {{ k8s_deployment_container_name }}
+          image: {{ k8s_deployment_container_image }}
+          ports:
+            - name: {{ k8s_deployment_container_port_name }}
+              containerPort: {{ k8s_deployment_container_port_number }}
+          envFrom:
+            - configMapRef:
+                name: {{ k8s_deployment_configmap_name }}
+            - secretRef:
+                name: {{ k8s_deployment_secret_name }}

@@ -1,0 +1,28 @@
+k8s_deployment_name: minio-labelstudio-listener
+k8s_deployment_namespace: minio-labelstudio-listener
+k8s_deployment_replicas: 1
+
+k8s_deployment_container_name: "{{ k8s_deployment_name }}"
+k8s_deployment_container_image: repo/image:label
+k8s_deployment_container_port_name: http
+k8s_deployment_container_port_number: 80
+
+k8s_deployment_service_name: "{{ k8s_deployment_name }}"
+k8s_deployment_service_port_name: http
+k8s_deployment_service_port_number: 80
+
+k8s_deployment_ingress_name: "{{ k8s_deployment_name }}"
+k8s_deployment_ingress_path_prefix: "/{{ k8s_deployment_name }}"
+
+k8s_deployment_labels:
+  app: "{{ k8s_deployment_name }}"
+
+k8s_deployment_configmap_name: "{{ k8s_deployment_name }}"
+k8s_deployment_configmap_env:
+  NAME: value
+  NAME2: value2
+
+k8s_deployment_secret_name: "{{ k8s_deployment_name }}"
+k8s_deployment_secret_env:
+  NAME: value
+  NAME2: value2

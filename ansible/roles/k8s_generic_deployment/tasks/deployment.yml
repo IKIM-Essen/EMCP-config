@@ -1,0 +1,15 @@
+---
+- name: Create resources from templates
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition: "{{ lookup('template', k8s_generic_deployment_item) | from_yaml }}"
+  loop:
+    - namespace.yml.j2
+    - configmap.yml.j2
+    - secret.yml.j2
+    - service.yml.j2
+    - traefik_ingressroute.yml.j2
+    - deployment.yml.j2
+  loop_control:
+    loop_var: k8s_generic_deployment_item
