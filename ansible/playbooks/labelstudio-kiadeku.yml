@@ -7,11 +7,31 @@
 - hosts: primary_rke_server
   environment: "{{ proxy_env | default({}) }}"
   vars:
-    labelstudio_ingress_path: kiadeku-label
-    labelstudio_public_url: "https://{{ labelstudio_ingress_path }}.{{ teleport_proxy_host }}"
-    teleport_app_name: "{{ labelstudio_ingress_path }}"
-    teleport_app_uri: "http://{{ labelstudio_service_name }}.{{ labelstudio_namespace }}.svc.cluster.local"
+    teleport_proxy_host: "{{ groups['teleport_proxy'][0] }}"
+    teleport_app_name: kiadeku-label
     teleport_app_labels: { project: kiadeku }
+    teleport_app_uri: "http://{{ labelstudio_service_name }}.{{ labelstudio_namespace }}.svc.cluster.local"
+    labelstudio_public_url: "https://{{ teleport_app_name }}.{{ teleport_proxy_host }}"
   roles:
     - k8s_labelstudio
     - k8s_teleport_agent
+
+- hosts: primary_rke_server
+  environment: "{{ proxy_env | default({}) }}"
+  vars:
+    k8s_deployment_name: minio-labelstudio-listener
+    k8s_deployment_namespace: minio-labelstudio-listener
+    k8s_deployment_container_image: registry/image:label
+    k8s_deployment_configmap_env:
+      SERVER_URL: "http://k8s.ikim.uk-essen.de{{ k8s_deployment_ingress_path_prefix }}"
+      APP_USER: "{{ undef }}"
+      SSE_USER: "{{ undef }}"
+      MINIO_ENDPOINT: https://minio.ikim.uk-essen.de:9002
+      BUCKET: "{{ undef }}"
+      S3_KEY_ID: "{{ undef }}"
+    k8s_deployment_secret_env:
+      APP_PASS: "{{ vault_kiadeku_listener_app_pass }}"
+      SSE_PASS: "{{ vault_kiadeku_listener_sse_pass }}"
+      S3_ACCESS_KEY: "{{ vault_kiadeku_listener_s3_secret_key }}"
+  roles:
+    - k8s_generic_deployment
