@@ -1,0 +1,20 @@
+---
+- name: Add the Curie Data Factory repository
+  kubernetes.core.helm_repository:
+    repo_name: curiedfcharts
+    repo_url: https://curie-data-factory.github.io/helm-charts
+    repo_state: present
+
+- name: Install the REDCap Helm chart
+  kubernetes.core.helm:
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    release_name: "{{ redcap_deployment_name }}"
+    release_namespace: "{{ redcap_namespace }}"
+    chart_ref: curiedfcharts/redcap
+    chart_version: "{{ redcap_chart_version }}"
+    values: "{{ lookup('template', 'redcap_values.yml.j2') | from_yaml }}"
+    atomic: true
+    create_namespace: true
+    update_repo_cache: true
+    wait: true
+    release_state: present

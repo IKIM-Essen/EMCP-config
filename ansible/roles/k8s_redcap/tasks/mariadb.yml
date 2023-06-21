@@ -1,0 +1,33 @@
+---
+- name: Add the MariaDB operator repository
+  kubernetes.core.helm_repository:
+    repo_name: mariadb-operator
+    repo_url: https://mariadb-operator.github.io/mariadb-operator
+    repo_state: present
+
+- name: Install the MariaDB Operator Helm chart
+  kubernetes.core.helm:
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    release_name: mariadb-operator
+    release_namespace: "{{ redcap_mariadb_namespace }}"
+    chart_ref: mariadb-operator/mariadb-operator
+    chart_version: "{{ redcap_mariadb_operator_chart_version }}"
+    atomic: true
+    create_namespace: true
+    update_repo_cache: true
+    wait: true
+    release_state: present
+
+- name: Create resources for MariaDB
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition: "{{ lookup('template', k8s_redcap_item) | from_yaml }}"
+  loop:
+    - mariadb_configmap_env.yml.j2
+    - mariadb_configmap_mycnf.yml.j2
+    - mariadb_secret_root.yml.j2
+    - mariadb_secret_user.yml.j2
+    - mariadb_instance.yml.j2
+  loop_control:
+    loop_var: k8s_redcap_item

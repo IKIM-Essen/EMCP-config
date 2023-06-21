@@ -1,0 +1,18 @@
+---
+- hosts: teleport_proxy
+  environment: "{{ proxy_env | default({}) }}"
+  roles:
+    - teleport_proxy
+
+- hosts: primary_rke_server
+  environment: "{{ proxy_env | default({}) }}"
+  vars:
+    teleport_proxy_host: "{{ groups['teleport_proxy'][0] }}"
+    teleport_agent_namespace: "{{ redcap_namespace }}"
+    teleport_app_name: redcap-nuc
+    teleport_app_labels: { project: redcap }
+    teleport_app_uri: "http://{{ redcap_service_name }}.{{ redcap_namespace }}.svc.cluster.local"
+  roles:
+    - k8s_mariadb
+    - k8s_redcap
+    - k8s_teleport_agent

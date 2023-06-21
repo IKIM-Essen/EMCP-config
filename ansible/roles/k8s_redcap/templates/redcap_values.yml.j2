@@ -1,0 +1,30 @@
+image:
+  repository: {{ redcap_image_registry }}
+  tag: "{{ redcap_image_tag }}"
+  name: {{ redcap_image_name }}
+  deployRegistry: true
+  imagePullSecrets: {{ redcap_image_registry_secret_name }}
+  dataSecret: |-
+    {"auths":{"gitlab.ikim.uk-essen.de:4567":{"password":"{{ redcap_image_registry_password }}","username":"{{ redcap_image_registry_username }}"}}}
+
+ingress:
+  enabled: false
+
+persistence:
+  enabled: false
+
+DB_HOSTNAME: mariadb.{{ redcap_mariadb_namespace }}.svc.cluster.local
+DB_NAME: {{ redcap_mariadb_database }}
+DB_USERNAME: {{ redcap_mariadb_user }}
+DB_PASSWORD: {{ redcap_mariadb_user_password }}
+
+SALT: {{ redcap_salt }}
+SMB_MOUNT_ENABLED: false
+
+# The following parameters are not used due to SMB_MOUNT_ENABLED set to false,
+# but the chart wants them defined.
+SMB_PASSWORD: placeholder
+SMB_USER: placeholder
+SMB_SOURCEPATH: placeholder
+SMB_DESTPATH: placeholder
+SMB_DOMAIN: placeholder

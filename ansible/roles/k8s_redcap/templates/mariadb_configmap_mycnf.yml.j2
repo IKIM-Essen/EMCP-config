@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mariadb-my-cnf
+  namespace: {{ redcap_mariadb_namespace }}
+data:
+  # See https://redcap.link/performance
+  config: |
+    [mysqld]
+    bind-address=0.0.0.0
+    default_storage_engine=InnoDB
+    innodb_buffer_pool_size=2G
+    innodb_buffer_pool_instances=4
+    max_connections=200

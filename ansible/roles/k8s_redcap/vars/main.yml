@@ -1,0 +1,1 @@
+redcap_service_name: "{{ redcap_deployment_name }}-{{ redcap_image_name }}"

@@ -1,0 +1,11 @@
+- name: Deploy MariaDB
+  block:
+    - ansible.builtin.include_tasks: mariadb.yml
+  tags:
+    - redcap-mariadb
+
+- name: Deploy REDCap
+  block:
+    - ansible.builtin.include_tasks: redcap.yml
+  tags:
+    - redcap

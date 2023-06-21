@@ -1,0 +1,23 @@
+# Chart source: https://github.com/curie-data-factory/helm-charts/tree/master/charts/redcap
+
+redcap_chart_version: "1.10.12"
+redcap_deployment_name: redcap
+redcap_namespace: redcap
+
+redcap_salt: "{{ vault_redcap_salt }}"
+
+redcap_image_name: nuc-redcap
+redcap_image_tag: "12.4.4"
+redcap_image_registry: gitlab.ikim.uk-essen.de:4567/infrastructure/nuc-redcap
+redcap_image_registry_secret_name: registrysecret
+redcap_image_registry_username: "{{ vault_redcap_image_registry_username }}"
+redcap_image_registry_password: "{{ vault_redcap_image_registry_password }}"
+
+redcap_mariadb_namespace: "{{ redcap_namespace }}"
+redcap_mariadb_operator_chart_version: "0.15.1"
+redcap_mariadb_image_tag: "10.11.3"
+
+redcap_mariadb_root_password: "{{ vault_redcap_mariadb_root_password }}"
+redcap_mariadb_user_password: "{{ vault_redcap_mariadb_user_password }}"
+redcap_mariadb_database: redcapdb
+redcap_mariadb_user: redcapdb
