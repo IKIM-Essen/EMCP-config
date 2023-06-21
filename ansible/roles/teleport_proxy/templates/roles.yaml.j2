@@ -1,7 +1,10 @@
+{% for role in teleport_roles %}
+---
 kind: role
 version: v6
 metadata:
-  name: {{ teleport_role_name }}
+  name: {{ role['name'] }}
 spec:
   allow:
-    app_labels: {{ teleport_role_labels | default({}) | to_yaml }}
+    app_labels: {{ role['labels'] | default({}) | to_yaml }}
+{% endfor %}
