@@ -4,12 +4,7 @@ joinParams:
   method: token
 
 roles: app
-apps:
-  - name: {{ teleport_app_name }}
-    uri: {{ teleport_app_uri }}
-    labels: {{ teleport_app_labels | to_yaml }}
-    rewrite:
-      headers: {{ teleport_app_rewrite_headers | to_yaml }}
+apps: {{ teleport_apps | default([]) }}
 
 extraEnv:
   - name: HTTP_PROXY

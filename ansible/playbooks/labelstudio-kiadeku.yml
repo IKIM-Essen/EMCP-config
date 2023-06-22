@@ -4,14 +4,11 @@
   roles:
     - teleport_proxy
 
+# Before deploying, add an entry in the {{ teleport_apps }} list.
 - hosts: primary_rke_server
   environment: "{{ proxy_env | default({}) }}"
   vars:
-    teleport_proxy_host: "{{ groups['teleport_proxy'][0] }}"
-    teleport_app_name: kiadeku-label
-    teleport_app_labels: { project: kiadeku }
-    teleport_app_uri: "http://{{ labelstudio_service_name }}.{{ labelstudio_namespace }}.svc.cluster.local"
-    labelstudio_public_url: "https://{{ teleport_app_name }}.{{ teleport_proxy_host }}"
+    labelstudio_public_url: https://kiadeku-label.{{ teleport_proxy_host }}"
   roles:
     - k8s_labelstudio
     - k8s_teleport_agent
