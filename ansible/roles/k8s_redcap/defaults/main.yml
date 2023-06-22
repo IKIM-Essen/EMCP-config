@@ -4,6 +4,9 @@ redcap_chart_version: "1.10.12"
 redcap_deployment_name: redcap
 redcap_namespace: redcap
 
+# The salt should be an alphanumeric string of length 8 or greater.
+# This value is used for de-identification hashing and must not change once
+# redcap is deployed.
 redcap_salt: "{{ vault_redcap_salt }}"
 
 redcap_image_name: nuc-redcap
