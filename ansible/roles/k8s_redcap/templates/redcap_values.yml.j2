@@ -14,7 +14,7 @@ ingress:
   enabled: false
 
 persistence:
-  enabled: false
+  enabled: true
 
 DB_HOSTNAME: mariadb.{{ redcap_mariadb_namespace }}.svc.cluster.local
 DB_NAME: {{ redcap_mariadb_database }}
