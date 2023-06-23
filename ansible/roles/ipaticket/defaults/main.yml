@@ -1,0 +1,2 @@
+ipaadmin_user: "{{ vault_ipaadmin_user }}"
+ipaadmin_password: "{{ vault_ipaadmin_password }}"

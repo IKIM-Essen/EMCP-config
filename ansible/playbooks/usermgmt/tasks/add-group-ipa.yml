@@ -1,0 +1,11 @@
+---
+- name: Create the group / project in freeIPA
+  community.general.ipa_group:
+    ipa_host: "{{ primary_ipaserver }}"
+    ipa_pass: "{{ ipaadmin_password }}"
+    cn: "{{ item['value']['groupname'] }}"
+    description: "{{ item['value']['group_description'] | default(omit) }}"
+    gidnumber: "{{ item['value']['group_id'] | default(omit) }}"
+    user: "{{ item['value']['members'] | default([]) }}"
+    validate_certs: false
+    state: "{{ item['value']['desired_state'] | default('present') }}"

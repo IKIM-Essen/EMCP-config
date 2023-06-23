@@ -1,0 +1,8 @@
+---
+- name: Load
+  ansible.builtin.include_vars:
+    file: "{{ item }}"
+    name: data
+- name: Combine
+  ansible.builtin.set_fact:
+    userdata: "{{ userdata | default({}) | combine({item: data}) }}"

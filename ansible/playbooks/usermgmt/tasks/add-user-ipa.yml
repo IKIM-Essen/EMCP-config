@@ -1,0 +1,64 @@
+---
+- name: Create the freeIPA user
+  community.general.ipa_user:
+    ipa_host: "{{ primary_ipaserver }}"
+    ipa_user: "{{ ipaadmin_user }}"
+    ipa_pass: "{{ ipaadmin_password }}"
+    name: "{{ item['value']['username'] }}"
+    givenname: "{{ item['value']['first_name'] }}"
+    sn: "{{ item['value']['last_name'] }}"
+    mail: "{{ item['value']['email'] }}"
+    loginshell: "{{ item['value']['login_shell'] | default('/bin/bash') }}"
+    sshpubkey: "{{ item['value']['ssh_public_key'] | default([]) }}"
+    validate_certs: false
+    state: "{{ item['value']['desired_state'] | default('present') }}"
+
+- name: Obtain an ipa cli ticket
+  ansible.builtin.include_role:
+    name: ipaticket
+
+- name: Add the manager and expiration fields
+  ansible.builtin.command:
+    argv:
+      - ipa
+      - user-mod
+      - "{{ item['value']['username'] }}"
+      - "--manager={{ item['value']['manager'] | default('') }}"
+      - "--principal-expiration={{ item['value']['expiration'] | default('') }}"
+  register: ipa_usermod
+  changed_when: not (ipa_usermod['stderr'] | regex_search('no modifications to be performed'))
+  failed_when:
+    - ipa_usermod['rc'] != 0
+    - not (ipa_usermod['stderr'] | regex_search('no modifications to be performed'))
+
+- name: Add the user administrator to the appropriate IPA role
+  ansible.builtin.command:
+    argv:
+      - ipa
+      - role-add-member
+      - User Administrator
+      - "--users={{ item['value']['username'] }}"
+  register: ipa_roleaddmember
+  changed_when: not (ipa_roleaddmember['stdout'] | regex_search('Number of members added 0'))
+  failed_when:
+    - ipa_roleaddmember['rc'] != 0
+    - not (ipa_roleaddmember['stdout'] | regex_search('Number of members added 0'))
+  when:
+    - item['value']['useradmin'] is defined
+    - item['value']['useradmin']
+
+- name: Make sure that user administrators can modify the expiration field
+  ansible.builtin.command:
+    argv:
+      - ipa
+      - permission-mod
+      - "System: Modify Users"
+      - --includedattrs=krbPrincipalExpiration
+  register: ipa_permissionmod
+  changed_when: not (ipa_permissionmod['stderr'] | regex_search('no modifications to be performed'))
+  failed_when:
+    - ipa_permissionmod['rc'] != 0
+    - not (ipa_permissionmod['stderr'] | regex_search('no modifications to be performed'))
+  when:
+    - item['value']['useradmin'] is defined
+    - item['value']['useradmin']

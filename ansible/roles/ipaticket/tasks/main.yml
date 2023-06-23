@@ -1,0 +1,6 @@
+---
+- name: Obtain a ticket for calling the freeipa api
+  block:
+    - ansible.builtin.include_tasks: ipaticket.yml
+  tags:
+    - ipaticket
