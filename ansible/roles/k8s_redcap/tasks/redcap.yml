@@ -18,3 +18,24 @@
     update_repo_cache: true
     wait: true
     release_state: present
+
+- name: Make the volume directory world-writable as required by REDCap
+  kubernetes.core.k8s:
+    state: patched
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: "{{ redcap_deployment_name }}-{{ redcap_image_name }}"
+        namespace: "{{ redcap_namespace }}"
+      spec:
+        template:
+          spec:
+            initContainers:
+              - name: "chmod"
+                image: "{{ redcap_image_registry }}:{{ redcap_image_tag }}"
+                command: ['/bin/chmod', '777', '/persistentedocs']
+                volumeMounts:
+                  - mountPath: /persistentedocs
+                    name: persistentedocs
