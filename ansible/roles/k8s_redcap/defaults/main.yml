@@ -10,7 +10,7 @@ redcap_namespace: redcap
 redcap_salt: "{{ vault_redcap_salt }}"
 
 redcap_image_name: nuc-redcap
-redcap_image_tag: "12.4.4"
+redcap_image_tag: "13.8.3"
 redcap_image_registry: gitlab.ikim.uk-essen.de:4567/infrastructure/nuc-redcap
 redcap_image_registry_secret_name: registrysecret
 redcap_image_registry_username: "{{ vault_redcap_image_registry_username }}"
