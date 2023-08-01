@@ -4,13 +4,18 @@ metadata:
   name: mariadb-my-cnf
   namespace: {{ redcap_mariadb_namespace }}
 data:
-  # See https://redcap.link/performance
+  # Settings based on https://redcap.link/performance
+  # and on the Configuration Check option in REDCap
   config: |
     [mysqld]
     bind-address=0.0.0.0
+    max_connections=200
     default_storage_engine=InnoDB
     innodb_buffer_pool_size=2G
     innodb_buffer_pool_instances=4
-    max_connections=200
-    max_allowed_packet=1G
+    innodb_file_format=Barracuda
+    innodb_file_per_table=ON
     optimizer_switch=rowid_filter=OFF
+    max_allowed_packet=1G
+    query_cache_type=1
+    query_cache_size=16777216
