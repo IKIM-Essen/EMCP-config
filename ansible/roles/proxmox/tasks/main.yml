@@ -1,14 +1,14 @@
 ---
-- name: Partition the disks
+- name: Create logical volumes
   become: true
   block:
-    - ansible.builtin.include_tasks: node_disk.yml
+    - ansible.builtin.include_tasks: node_storage_lvm.yml
       loop: "{{ proxmox_lvm_devices }}"
       loop_control:
         loop_var: proxmox_lvm_item
   tags:
     - proxmox
-    - proxmox-disks
+    - proxmox-storage-lvm
 
 - name: Apply node settings
   become: true
