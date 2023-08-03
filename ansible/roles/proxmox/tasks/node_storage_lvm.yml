@@ -1,18 +1,25 @@
 ---
-- name: Create a primary partition for LVM
+- name: Create partitions on the target devices
   community.general.parted:
-    device: "{{ proxmox_lvm_item['device'] }}"
-    number: 1
+    device: "{{ proxmox_lvm_device['path'] }}"
+    number: "{{ proxmox_lvm_device['partition_num'] }}"
     label: gpt
     flags: [lvm]
     state: present
+  loop: "{{ proxmox_lvm_item['devices'] }}"
+  loop_control:
+    loop_var: proxmox_lvm_device
 
 - name: Create a volume group on the partition
   vars:
+    # device_list joins physical device paths with partition numbers,
+    # e.g. [ {"path": "/dev/sda", "partition_num": 3}, { "path": "/dev/sdb", "partition_num": 1} ] 
+    # becomes [ "/dev/sda3", "/dev/sdb1" ]
+    device_list: "{{ proxmox_lvm_item['devices'] | map(attribute='path') | zip(proxmox_lvm_item['devices'] | map(attribute='partition_num')) | map('join') }}"
     volume_group_name: "{{ proxmox_lvm_item['vg_name'] }}"
   community.general.lvg:
     vg: "{{ volume_group_name }}"
-    pvs: "{{ proxmox_lvm_item['device'] }}p1"
+    pvs: "{{ device_list }}"
     state: present
 
 - name: Create a thin pool on the volume group

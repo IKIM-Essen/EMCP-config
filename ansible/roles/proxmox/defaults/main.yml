@@ -1,11 +1,16 @@
 proxmox_inventory_group: proxmox
 proxmox_cluster_name: cluster
 
+# Create LVM pools on the listed devices.
 # Example:
-# proxmox_lvm_devices:
-#   - device: /dev/sdb
-#     vg_name: VolumeGroupName
-proxmox_lvm_devices: []
+# proxmox_lvm_pools:
+#   - vg_name: VolumeGroupName
+#     devices:
+#       - path: /dev/sda
+#         partition_num: 3
+#       - path: /dev/sdb
+#         partition_num: 1
+proxmox_lvm_pools: []
 
 http_proxy_host: proxy.example.org
 http_proxy_port: "3128"
