@@ -2,6 +2,9 @@ proxmox_inventory_group: proxmox
 proxmox_cluster_name: cluster
 
 # Create LVM pools on the listed devices.
+# The key "content" accepts the values listed at
+# https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_common_storage_properties
+#
 # Example:
 # proxmox_lvm_pools:
 #   - vg_name: VolumeGroupName
@@ -10,7 +13,30 @@ proxmox_cluster_name: cluster
 #         partition_num: 3
 #       - path: /dev/sdb
 #         partition_num: 1
+#     content: iso
 proxmox_lvm_pools: []
+
+# Create a mirrored ZFS pool on the listed devices.
+# 
+# The key "content" accepts the values listed at
+# https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_common_storage_properties
+#
+# The vdev specification is described at
+# https://openzfs.github.io/openzfs-docs/man/master/7/zpoolconcepts.7.html
+#
+# The value of "ashift" depends on the physical sector size of the drives
+# as reported by the spec sheet from the manufacturer.
+# See https://openzfs.github.io/openzfs-docs/man/master/7/zpoolprops.7.html#ashift
+#
+# Example:
+# proxmox_zfs_pools:
+#   - name: local
+#     vdevs:
+#       - mirror /dev/nvme0n1 /dev/nvme1n1
+#       - mirror /dev/nvme2n1 /dev/nvme3n1
+#     ashift: 12
+#     content: images,rootdir
+proxmox_zfs_pools: []
 
 http_proxy_host: proxy.example.org
 http_proxy_port: "3128"

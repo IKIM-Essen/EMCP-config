@@ -1,0 +1,32 @@
+---
+- name: Create a zfs pool
+  vars:
+    vdev_args: "{{ proxmox_zfs_item['vdevs'] | map('split', ' ') | flatten }}"
+    pool_name: "{{ proxmox_zfs_item['name'] }}"
+  ansible.builtin.command:
+    argv: "{{ ['zpool', 'create', '-o', 'ashift='~proxmox_zfs_item['ashift']] + [pool_name] + vdev_args }}"
+  changed_when: true
+
+- name: Enable compression
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - set
+      - compression=lz4
+      - "{{ pool_name }}"
+  changed_when: true
+
+- name: Add the zfs pool to Proxmox
+  vars:
+    storage_identifier: "{{ inventory_hostname }}-{{ pool_name }}-zfs"
+  ansible.builtin.command:
+    argv:
+      - pvesm
+      - add
+      - zfspool
+      - "{{ storage_identifier }}"
+      - --pool
+      - "{{ pool_name }}"
+      - --content
+      - "{{ proxmox_zfs_item['content'] }}"
+  changed_when: true

@@ -3,12 +3,23 @@
   become: true
   block:
     - ansible.builtin.include_tasks: node_storage_lvm.yml
-      loop: "{{ proxmox_lvm_devices }}"
+      loop: "{{ proxmox_lvm_pools }}"
       loop_control:
         loop_var: proxmox_lvm_item
   tags:
     - proxmox
     - proxmox-storage-lvm
+
+- name: Create ZFS pools
+  become: true
+  block:
+    - ansible.builtin.include_tasks: node_storage_zfs.yml
+      loop: "{{ proxmox_zfs_pools }}"
+      loop_control:
+        loop_var: proxmox_zfs_item
+  tags:
+    - proxmox
+    - proxmox-storage-zfs
 
 - name: Apply node settings
   become: true

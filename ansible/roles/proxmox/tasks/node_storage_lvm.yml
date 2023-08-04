@@ -45,5 +45,5 @@
       - --vgname
       - "{{ volume_group_name }}"
       - --content
-      - rootdir,images
+      - "{{ proxmox_lvm_item['content'] }}"
   changed_when: true
