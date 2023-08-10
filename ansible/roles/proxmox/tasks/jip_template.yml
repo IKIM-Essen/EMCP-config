@@ -28,7 +28,7 @@
       - cputype=host
       - --efidisk0
       - "{{ proxmox_template_storage_id }}:0,efitype=4m,format={{ proxmox_template_storage_format }},pre-enrolled-keys=0"
-      - --ide2
+      - --ide0
       - "{{ proxmox_template_storage_id }}:cloudinit"
       - --ipconfig0
       - ip=dhcp
