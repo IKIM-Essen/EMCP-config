@@ -4,7 +4,5 @@ kind: role
 version: v6
 metadata:
   name: {{ role['name'] }}
-spec:
-  allow:
-    app_labels: {{ role['labels'] | default({}) | to_yaml }}
+spec: {{ role['spec'] | default({}) | to_yaml }}
 {% endfor %}

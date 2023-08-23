@@ -3,9 +3,16 @@ teleport_version_major: "12"
 teleport_proxy_public_fqdn: tele.example.org
 teleport_proxy_acme_email: web@example.org
 
+# A list of role specifications. For the complete reference, see the "spec" key
+# at https://goteleport.com/docs/access-controls/reference/
 teleport_roles:
   - name: env-default
-    labels: { env: default }
+    spec:
+      allow:
+        app_labels:
+          env: default
+      options:
+        max_session_ttl: 8h
 
 teleport_user_registration_token_ttl: 1h
 
