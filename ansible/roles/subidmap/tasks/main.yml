@@ -16,12 +16,12 @@
 
 - name: Copy the mapping file to the target hosts
   ansible.builtin.copy:
-    src: "{{ sub_id_file['path'] }}"
+    src: "{{ subidmap_sub_id_file['path'] }}"
     dest: "{{ subidmap_item }}"
     owner: root
     group: root
     mode: "0644"
-  when: sub_id_file['path'] is defined
+  when: subidmap_sub_id_file['path'] is defined
   loop:
     - /etc/subuid
     - /etc/subgid

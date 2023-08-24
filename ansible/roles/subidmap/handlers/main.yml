@@ -1,6 +1,6 @@
 ---
 - name: remove local temp file
   ansible.builtin.file:
-    path: "{{ sub_id_file['path'] }}"
+    path: "{{ subidmap_sub_id_file['path'] }}"
     state: absent
   delegate_to: "127.0.0.1"

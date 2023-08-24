@@ -1,3 +1,3 @@
-{% for subid in range(subid_start|int, subid_stop|int, subid_step) %}
-{{ first_ipa_id|int + loop.index0 }}:{{ subid }}:{{ subid_step }}
+{% for subid in range(subidmap_subid_start|int, subidmap_subid_stop|int, subid_step) %}
+{{ subidmap_first_ipa_id|int + loop.index0 }}:{{ subid }}:{{ subid_step }}
 {% endfor %}
