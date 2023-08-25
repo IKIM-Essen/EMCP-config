@@ -19,6 +19,7 @@
     pkg:
       - htop
       - iftop
+      - iotop
       - smartmontools
   tags: admin-tools
 
