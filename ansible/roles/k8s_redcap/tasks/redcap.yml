@@ -39,3 +39,65 @@
                 volumeMounts:
                   - mountPath: /persistentedocs
                     name: persistentedocs
+
+- name: Add proxy environment variables to the deployment
+  kubernetes.core.k8s:
+    state: patched
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: "{{ redcap_deployment_name }}-{{ redcap_image_name }}"
+        namespace: "{{ redcap_namespace }}"
+      spec:
+        template:
+          spec:
+            containers:
+              - name: "{{ redcap_image_name }}"
+                env:
+                  - name: HTTP_PROXY
+                    value: "{{ http_proxy }}"
+                  - name: http_proxy
+                    value: "{{ http_proxy }}"
+                  - name: HTTPS_PROXY
+                    value: "{{ http_proxy }}"
+                  - name: https_proxy
+                    value: "{{ http_proxy }}"
+                  - name: NO_PROXY
+                    value: "{{ no_proxy }}"
+                  - name: no_proxy
+                    value: "{{ no_proxy }}"
+  when: http_proxy is defined
+
+- name: Add proxy environment variables to the cron job
+  kubernetes.core.k8s:
+    state: patched
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition:
+      apiVersion: batch/v1
+      kind: CronJob
+      metadata:
+        name: "{{ redcap_deployment_name }}-redcap-cron"
+        namespace: "{{ redcap_namespace }}"
+      spec:
+        jobTemplate:
+          spec:
+            template:
+              spec:
+                containers:
+                  - name: redcap-cron
+                    env:
+                      - name: HTTP_PROXY
+                        value: "{{ http_proxy }}"
+                      - name: http_proxy
+                        value: "{{ http_proxy }}"
+                      - name: HTTPS_PROXY
+                        value: "{{ http_proxy }}"
+                      - name: https_proxy
+                        value: "{{ http_proxy }}"
+                      - name: NO_PROXY
+                        value: "{{ no_proxy }}"
+                      - name: no_proxy
+                        value: "{{ no_proxy }}"
+  when: http_proxy is defined
