@@ -54,26 +54,32 @@ proxmox_pfsense_storage_format: raw
 proxmox_pfsense_storage_size_gb: "32"
 
 # WAN configuration for the pfSense VM on node {{ proxmox_pfsense_node }}.
-# Commented-out values are optional: if defined, a bridge interface is created
-# with the specified name. To use an existing bridge interface, leave the
-# commented-out values undefined.
-proxmox_pfsense_wan_bridge: vmbr1
-# proxmox_pfsense_wan_interface_address: "0.0.0.0/24"
-# proxmox_pfsense_wan_interface_gateway: "0.0.0.0"
-# proxmox_pfsense_wan_interface_name: eth0
+# If the specification is defined, an interface is created. To use an existing
+# interface, leave proxmox_pfsense_wan_spec undefined.
+proxmox_pfsense_wan_name: vmbr1
+# proxmox_pfsense_wan_spec: |
+#   iface {{ proxmox_pfsense_wan_name }} inet static
+#       address 0.0.0.0/24
+#       gateway 0.0.0.0
+#       bridge-ports eth0
+#       bridge-stp off
+#       bridge-fd 0
 
 # LAN configuration for the pfSense VM on node {{ proxmox_pfsense_node }}.
 # Ignored if proxmox_pfsense_sdn_create is true.
-# Commented-out values are optional: if defined, a bridge interface is created
-# with the specified name. To use an existing bridge interface, leave the
-# commented-out values undefined.
-proxmox_pfsense_lan_bridge: vmbr2
-# proxmox_pfsense_lan_interface_address: "0.0.0.0/24"
-# proxmox_pfsense_lan_interface_gateway: "0.0.0.0"
-# proxmox_pfsense_lan_interface_name: eth1
+# If the specification is defined, an interface is created. To use an existing
+# interface, leave proxmox_pfsense_lan_spec undefined.
+proxmox_pfsense_lan_name: vmbr2
+# proxmox_pfsense_lan_spec: |
+#   iface {{ proxmox_pfsense_lan_name }} inet static
+#       address 0.0.0.0/24
+#       gateway 0.0.0.0
+#       bridge-ports eth1
+#       bridge-stp off
+#       bridge-fd 0
 
 # If proxmox_pfsense_sdn_create is true, the LAN interface for pfSense is not
-# assigned to proxmox_pfsense_lan_bridge. Instead, a software-defined VXLAN
+# assigned to proxmox_pfsense_lan_name. Instead, a software-defined VXLAN
 # is created between the Proxmox nodes.
 # Due to VXLAN incapsulation, the value of proxmox_pfsense_sdn_vxlan_zone_mtu
 # must be 50 bytes lower than the MTU of the underlying data link.

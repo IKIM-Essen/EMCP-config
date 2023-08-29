@@ -7,7 +7,7 @@
     group: root
     mode: 0644
   notify: Reload /etc/network/interfaces
-  when: proxmox_pfsense_wan_interface_name is defined
+  when: proxmox_pfsense_wan_spec is defined
 
 - name: Add the LAN bridge configuration snippet
   ansible.builtin.template:
@@ -17,7 +17,7 @@
     group: root
     mode: 0644
   notify: Reload /etc/network/interfaces
-  when: proxmox_pfsense_lan_interface_name is defined
+  when: proxmox_pfsense_lan_spec is defined
 
 - name: Point the main configuration file to the added snippets
   ansible.builtin.lineinfile:
@@ -55,7 +55,7 @@
       - --name
       - pfsense-template
       - --net0
-      - "virtio,bridge={{ proxmox_pfsense_wan_bridge }},firewall=0"
+      - "virtio,bridge={{ proxmox_pfsense_wan_name }},firewall=0"
       - --net1
       - "virtio,bridge={{ proxmox_pfsense_lan_device }},firewall=0"
       - --ostype
