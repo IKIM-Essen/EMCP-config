@@ -10,7 +10,7 @@
     loginshell: "{{ users_item['loginshell'] | default(omit) }}"
     sshpubkey: "{{ users_item['sshpubkey'] | default(omit) }}"
     validate_certs: false
-    state: present
+    state: "{{ users_item['state'] | default('present') }}"
   loop: "{{ ipausers }}"
   loop_control:
     loop_var: users_item

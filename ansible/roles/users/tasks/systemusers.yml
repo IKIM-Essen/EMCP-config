@@ -8,7 +8,7 @@
     loginshell: "{{ users_item['loginshell'] | default('/usr/sbin/nologin') }}"
     sshpubkey: "{{ users_item['sshpubkey'] | default([]) }}"
     validate_certs: false
-    state: present
+    state: "{{ users_item['state'] | default('present') }}"
   loop: "{{ ipasystemusers }}"
   loop_control:
     loop_var: users_item
