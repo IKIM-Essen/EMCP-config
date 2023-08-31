@@ -14,3 +14,20 @@
   loop: "{{ ipausers }}"
   loop_control:
     loop_var: users_item
+
+- name: Add the manager and expiration fields
+  ansible.builtin.command:
+    argv:
+      - ipa
+      - user-mod
+      - "{{ users_item['name'] }}"
+      - "--manager={{ users_item['manager'] | default('') }}"
+      - "--principal-expiration={{ users_item['expiration'] | default('') }}"
+  register: users_cmd_ipa
+  changed_when: not (users_cmd_ipa['stderr'] | regex_search('no modifications to be performed'))
+  failed_when:
+    - users_cmd_ipa['rc'] != 0
+    - not (users_cmd_ipa['stderr'] | regex_search('no modifications to be performed'))
+  loop: "{{ ipausers }}"
+  loop_control:
+    loop_var: users_item

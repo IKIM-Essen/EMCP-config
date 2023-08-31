@@ -13,19 +13,6 @@
   loop_control:
     loop_var: users_item
 
-- name: Make sure the kinit executable is installed
-  ansible.builtin.apt:
-    name: krb5-user
-    state: present
-
-- name: Obtain an admin ticket
-  ansible.builtin.expect:
-    command: "kinit {{ ipaadmin_user }}"
-    responses:
-      Password: "{{ ipaadmin_password }}"
-  changed_when: true
-  no_log: true
-
 - name: Remove service accounts from the ipausers group
   ansible.builtin.command: "ipa group-remove-member ipausers --users={{ users_item['name'] }}"
   register: users_cmd_removemember
@@ -36,7 +23,3 @@
   loop: "{{ ipasystemusers }}"
   loop_control:
     loop_var: users_item
-
-- name: Clear the active ticket
-  ansible.builtin.command: kdestroy
-  changed_when: true
