@@ -1,0 +1,15 @@
+---
+- name: Install the krb5 package needed for kinit
+  ansible.builtin.apt:
+    name: krb5-user
+    state: present
+
+- name: Obtain a kerberos ticket for freeipa
+  ansible.builtin.command:
+    argv:
+      - kinit
+      - "{{ ipaadmin_user }}"
+    stdin: "{{ ipaadmin_password }}"
+  changed_when: true
+  no_log: true
+  notify: Clear the active ticket
