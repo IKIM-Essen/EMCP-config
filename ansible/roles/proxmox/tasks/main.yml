@@ -33,7 +33,9 @@
   become: true
   block:
     - ansible.builtin.include_tasks: pci_passthrough.yml
-  when: ansible_local['gpu']['pciids'] is defined
+  when:
+    - ansible_local['gpu']['count'] is defined
+    - ansible_local['gpu']['count'] > 0
   tags:
     - proxmox
     - proxmox-passthrough

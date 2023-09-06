@@ -1,8 +1,30 @@
 ---
-- name: Pass the GPU devices to vfio-pci
-  ansible.builtin.template:
-    src: vfio-pci.conf.j2
-    dest: /etc/modprobe.d/vfio.conf
+- name: Wipe all packages by nvidia
+  ansible.builtin.apt:
+    name:
+      - "*cuda*"
+      - "*cublas*"
+      - "*cufft*"
+      - "*cufile*"
+      - "*curand*"
+      - "*cusolver*"
+      - "*cusparse*"
+      - "*gds-tools*"
+      - "*npp*"
+      - "*nvjpeg*"
+      - "nsight*"
+      - "*nvidia*"
+      - "datacenter-gpu-manager"
+    state: absent
+    purge: true
+    autoremove: true
+  notify:
+    - Reboot
+
+- name: Blacklist the nouveau driver
+  ansible.builtin.copy:
+    src: blacklist-nouveau.conf
+    dest: /etc/modprobe.d/blacklist-nouveau.conf
     owner: root
     group: root
     mode: 0644
