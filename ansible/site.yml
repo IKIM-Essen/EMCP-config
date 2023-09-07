@@ -9,14 +9,6 @@
   roles:
     - ntpclient
 
-- hosts: dns_servers
-  become: true
-  remote_user: ubuntu
-  gather_facts: true
-  roles:
-    - docker
-    - dns_server
-
 - hosts: k8s
   become: true
   ignore_errors: true
