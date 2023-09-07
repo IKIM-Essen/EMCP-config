@@ -5,6 +5,8 @@
   run_once: true
   tags:
     - ipaticket
+    - ipausers
+    - ipasystemusers
 
 - name: Create users
   block:
