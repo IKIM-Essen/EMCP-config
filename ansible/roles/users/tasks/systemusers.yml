@@ -4,6 +4,8 @@
     ipa_host: "{{ primary_ipaserver }}"
     ipa_pass: "{{ ipaadmin_password }}"
     name: "{{ users_item['name'] }}"
+    givenname: "{{ users_item['givenname'] | default('-') }}"
+    sn: "{{ users_item['sn'] | default('-') }}"
     mail: "{{ users_item['email'] | default([]) }}"
     loginshell: "{{ users_item['loginshell'] | default('/usr/sbin/nologin') }}"
     sshpubkey: "{{ users_item['sshpubkey'] | default([]) }}"
