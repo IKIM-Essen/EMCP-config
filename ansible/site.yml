@@ -76,7 +76,7 @@
       ansible.builtin.command: /usr/bin/nvidia-smi
   vars:
     nvidia_driver_ubuntu_install_from_cuda_repo: true
-    cuda_driver_version: "520"
+    cuda_driver_version: "535"
     nvidia_driver_branch: "{{ cuda_driver_version }}"
   roles:
     - facts
