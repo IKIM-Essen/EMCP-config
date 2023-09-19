@@ -1,18 +1,15 @@
 ---
 - hosts: all
-  remote_user: ubuntu
   roles:
     - timezone
 
 - hosts: all:!origin
-  remote_user: ubuntu
   roles:
     - ntpclient
 
 - hosts: k8s
   become: true
   ignore_errors: true
-  remote_user: ubuntu
   gather_facts: true
   vars:
     ansible_ssh_private_key_file: files/ikimk8s_rsa
@@ -37,7 +34,6 @@
 - hosts: server
   become: true
   ignore_errors: true
-  remote_user: ubuntu
   gather_facts: true
   environment: "{{ proxy_env | default({}) }}"
   roles:
@@ -66,7 +62,6 @@
 - hosts: gpucluster
   become: true
   ignore_errors: true
-  remote_user: ubuntu
   gather_facts: true
   environment: "{{ proxy_env | default({}) }}"
   post_tasks:
@@ -114,7 +109,6 @@
 
 - hosts: ipaclients
   become: true
-  remote_user: ubuntu
   gather_facts: true
   environment: "{{ proxy_env | default({}) }}"
   roles:
@@ -128,7 +122,6 @@
 - hosts: nfs_clients
   become: true
   ignore_errors: true
-  remote_user: ubuntu
   gather_facts: true
   environment: "{{ proxy_env | default({}) }}"
   roles:
@@ -143,7 +136,6 @@
 
 - hosts: rke_k8s_cluster
   gather_facts: true
-  remote_user: ubuntu
   roles:
     - set_default_gw
     - rke2
@@ -153,7 +145,6 @@
 
 - hosts: rke_servers
   gather_facts: true
-  remote_user: ubuntu
   roles:
     - k8s_mariadb
     - k8s_slurm_mariadb
@@ -161,7 +152,6 @@
     - k8s_slurmdbd
 
 - hosts: slurm_controller, slurm_worker, slurm_database
-  remote_user: ubuntu
   gather_facts: true
   environment: "{{ proxy_env | default({}) }}"
   roles:
@@ -169,7 +159,6 @@
 
 - hosts: server, infra, origin
   become: true
-  remote_user: ubuntu
   gather_facts: true
   environment: "{{ proxy_env | default({}) }}"
   roles:
