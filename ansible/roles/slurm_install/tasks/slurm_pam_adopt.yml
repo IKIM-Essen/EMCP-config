@@ -1,0 +1,34 @@
+---
+- name: Download the deb packages
+  ansible.builtin.unarchive:
+    src: "{{ slurm_worker_debs_url }}"
+    dest: /tmp
+    remote_src: true
+
+- name: Install packages for pam_slurm_adopt
+  ansible.builtin.apt:
+    deb: "/tmp/{{ slurm_install_item }}"
+    state: present
+  loop:
+    - "{{ slurm_worker_debs_dirname }}/libslurm37_{{ slurm_worker_debs_tag }}_amd64.deb"
+    - "{{ slurm_worker_debs_dirname }}/libpam-slurm-adopt_{{ slurm_worker_debs_tag }}_amd64.deb"
+  loop_control:
+    loop_var: slurm_install_item
+
+- name: Comment-out the PAM module pam_systemd as instructed by the pam_slurm_adopt guide
+  ansible.builtin.replace:
+    path: /etc/pam.d/common-session
+    regexp: '^(session.*pam_systemd\.so)\s*$'
+    replace: '# \1  # ANSIBLE-MANAGED: incompatible with pam_slurm_adopt'
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Add the PAM module pam_slurm_adopt at the bottom of the sshd stack
+  ansible.builtin.blockinfile:
+    path: /etc/pam.d/sshd
+    block: "{{ lookup('file', 'sshd-pam-slurm-adopt') }}"
+    owner: root
+    group: root
+    mode: "0644"
+    state: present

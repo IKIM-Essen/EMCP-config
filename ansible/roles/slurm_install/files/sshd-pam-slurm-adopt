@@ -1,0 +1,1 @@
+account    sufficient   pam_slurm_adopt.so

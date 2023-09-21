@@ -23,6 +23,9 @@
   ansible.builtin.apt:
     deb: "/tmp/{{ slurm_install_item }}"
     state: present
-  loop: "{{ slurm_worker_package_paths }}"
+  loop:
+    - "{{ slurm_worker_debs_dirname }}/slurm-wlm-basic-plugins_{{ slurm_worker_debs_tag }}_amd64.deb"
+    - "{{ slurm_worker_debs_dirname }}/slurm-client_{{ slurm_worker_debs_tag }}_amd64.deb"
+    - "{{ slurm_worker_debs_dirname }}/slurmd_{{ slurm_worker_debs_tag }}_amd64.deb"
   loop_control:
     loop_var: slurm_install_item

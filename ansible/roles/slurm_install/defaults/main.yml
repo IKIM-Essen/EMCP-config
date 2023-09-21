@@ -1,6 +1,6 @@
 # Inventory group names
 slurm_controller_group_name: slurm_controller
-slurm_worker_group_name: slurm_worker
+slurm_worker_group_name: slurm_worker  # includes compute and user-facing nodes
 slurm_compute_group_name: slurm_compute
 slurm_dbd_group_name: slurm_database
 rke2_primary_server_group_name: primary_rke_server
@@ -15,15 +15,6 @@ slurm_upgrade: false
 
 # URL of the archive containing the deb packages
 slurm_worker_debs_url: "https://github.com/IKIM-Essen/EMCP-slurm/releases/download/{{ slurm_worker_debs_tag }}/{{ slurm_worker_debs_archive }}"
-
-# Packages to install on worker nodes as a list of paths relative to the
-# directory where slurm_worker_debs_url is extracted.
-# The order matters: since the Ansible apt module installs each local package
-# in a separate transaction, the list must reflect the dependency sequence.
-slurm_worker_package_paths:
-  - "{{ slurm_worker_debs_dirname }}/slurm-wlm-basic-plugins_{{ slurm_worker_debs_tag }}_amd64.deb"
-  - "{{ slurm_worker_debs_dirname }}/slurm-client_{{ slurm_worker_debs_tag }}_amd64.deb"
-  - "{{ slurm_worker_debs_dirname }}/slurmd_{{ slurm_worker_debs_tag }}_amd64.deb"
 
 # Cluster name for the configuration file
 slurm_cluster_name: slurmcluster
