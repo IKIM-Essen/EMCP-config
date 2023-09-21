@@ -1,4 +1,10 @@
 ---
+- name: Before upgrading, remove the existing packages
+  ansible.builtin.apt:
+    name: "*slurm*"
+    state: absent
+  when: slurm_upgrade
+
 - name: Configure apt to prefer the custom-built slurm packages
   ansible.builtin.copy:
     src: 99prefer-local-slurm
