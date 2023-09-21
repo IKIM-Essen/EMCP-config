@@ -48,20 +48,3 @@
     owner: root
     group: root
     mode: "0777"
-
-- name: Create /local/cache directory
-  ansible.builtin.file:
-    path: /local/cache
-    state: directory
-    owner: root
-    group: root
-    mode: "0770"
-
-
-- name: Create /local/cache directory
-  ansible.builtin.file:
-    path: /local/cache/fscache
-    state: directory
-    owner: root
-    group: root
-    mode: "0770"

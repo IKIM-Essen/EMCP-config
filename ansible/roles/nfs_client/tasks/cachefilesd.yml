@@ -9,7 +9,25 @@
     enabled: true
     state: started
 
-- name: Tweak the cachefilesd settings
+- name: Create the cache directory
+  ansible.builtin.file:
+    path: "{{ cachefilesd_directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Configure the cache path
+  ansible.builtin.lineinfile:
+    path: /etc/cachefilesd.conf
+    regexp: "^dir\\s"
+    line: "dir {{ cachefilesd_directory }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart cachefilesd
+
+- name: Tweak other cachefilesd settings
   ansible.builtin.lineinfile:
     path: /etc/cachefilesd.conf
     regexp: "^{{ nfs_client_item['name'] }}\\s"
@@ -20,7 +38,6 @@
   loop: "{{ cachefilesd_options }}"
   loop_control:
     loop_var: nfs_client_item
-  when: cachefilesd_enabled
   notify: restart cachefilesd
 
 - name: Enable cachefilesd
