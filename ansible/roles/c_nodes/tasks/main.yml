@@ -49,26 +49,3 @@
   become: true
   tags:
     - mount_local
-
-- name: Create /local/cache directory
-  ansible.builtin.file:
-    path: /local/cache
-    state: directory
-    owner: root
-    group: root
-    mode: "0770"
-  become: true
-  tags:
-    - mount_local
-
-
-- name: Create /local/cache directory
-  ansible.builtin.file:
-    path: /local/cache/fscache
-    state: directory
-    owner: root
-    group: root
-    mode: "0770"
-  become: true
-  tags:
-    - mount_local
