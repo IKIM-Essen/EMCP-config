@@ -27,6 +27,15 @@
   register: mambaforge_result
   changed_when: ('All requested packages already installed') not in mambaforge_result['stdout']
 
+- name: Create the custom environment root
+  ansible.builtin.file:
+    path: "{{ mambaforge_user_env_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0777"
+  when: mambaforge_user_env_root is defined
+
 - name: Apply system-wide settings
   ansible.builtin.template:
     src: condarc.j2
