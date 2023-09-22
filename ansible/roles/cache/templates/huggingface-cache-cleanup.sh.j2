@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+set -e
+
+. "{{ cache_huggingface_virtualenv }}/bin/activate"
+
+for user in $(ls "{{ cache_huggingface_root }}"); do
+	HF_HOME="{{ cache_huggingface_root }}/$user" "{{ cache_huggingface_python_script }}"
+done

@@ -1,0 +1,51 @@
+---
+- name: Create the huggingface cache root
+  ansible.builtin.file:
+    path: "{{ cache_huggingface_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0777"
+
+- name: Configure the huggingface environment variables
+  ansible.builtin.template:
+    src: huggingface-env.sh.j2
+    dest: /etc/profile.d/huggingface-env.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create the cache management script root
+  ansible.builtin.file:
+    path: "{{ cache_huggingface_script_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install virtualenv
+  ansible.builtin.apt:
+    name:
+      - python3-virtualenv
+    state: present
+
+- name: Create a python environment for executing the cache management script
+  ansible.builtin.pip:
+    name: huggingface_hub
+    virtualenv: "{{ cache_huggingface_virtualenv }}"
+
+- name: Install the top-level shell script
+  ansible.builtin.template:
+    src: huggingface-cache-cleanup.sh.j2
+    dest: "{{ cache_huggingface_shell_script }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install the cache management script
+  ansible.builtin.copy:
+    src: huggingface-cache-cleanup.py
+    dest: "{{ cache_huggingface_python_script }}"
+    owner: root
+    group: root
+    mode: "0755"

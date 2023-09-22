@@ -1,0 +1,3 @@
+cache_huggingface_virtualenv: "{{ cache_huggingface_script_root }}/venv"
+cache_huggingface_shell_script: "{{ cache_huggingface_script_root }}/huggingface-cache-cleanup.sh"
+cache_huggingface_python_script: "{{ cache_huggingface_script_root }}/huggingface-cache-cleanup.py"

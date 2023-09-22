@@ -1,0 +1,16 @@
+---
+- name: Create a local cache root
+  become: true
+  block:
+    - ansible.builtin.include_tasks: cacheroot.yml
+  tags:
+    - cache
+    - cache-root
+
+- name: Configure the huggingface cache on local storage
+  become: true
+  block:
+    - ansible.builtin.include_tasks: huggingface.yml
+  tags:
+    - cache
+    - cache-huggingface
