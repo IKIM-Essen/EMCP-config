@@ -1,0 +1,15 @@
+[Unit]
+Description=Clean local storage
+{% for userdir in slurm_local_storage_userdirs %}
+ConditionPathExists={{ userdir }}
+{% endfor %}
+{% for globaldir in slurm_local_storage_globaldirs %}
+ConditionPathExists={{ globaldir }}
+{% endfor %}
+
+[Service]
+Type=oneshot
+ExecStart="{{ slurm_cleanup_shell_script }}"
+
+[Install]
+WantedBy=multi-user.target

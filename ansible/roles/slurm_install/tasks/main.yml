@@ -46,3 +46,13 @@
   tags:
     - slurm
     - slurm-controller
+
+- name: Install additions on compute nodes
+  become: true
+  block:
+    - ansible.builtin.include_tasks: local_storage_cleanup.yml
+  when: inventory_hostname in groups[slurm_compute_group_name]
+  tags:
+    - slurm
+    - slurm-worker
+    - slurm-additions

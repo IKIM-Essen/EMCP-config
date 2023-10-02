@@ -1,6 +1,7 @@
 # Inventory group names
 slurm_controller_group_name: slurm_controller
 slurm_worker_group_name: slurm_worker
+slurm_compute_group_name: slurm_compute
 slurm_dbd_group_name: slurm_database
 rke2_primary_server_group_name: primary_rke_server
 
@@ -91,3 +92,13 @@ slurm_partitions:
     hosts: ALL
     default: true
     opts: ""
+
+# Destination directory of the local storage cleanup script on each node
+slurm_cleanup_script_root: /opt/cleanup
+
+# Parameters of the local storage cleanup script
+# The cleanup script runs only if the ratio of free to total space on the
+# specified paths is lower than slurm_local_storage_threshold.
+slurm_local_storage_threshold: 0.2
+slurm_local_storage_userdirs: []
+slurm_local_storage_globaldirs: []
