@@ -134,6 +134,7 @@
     - nfs_shares
     - user_skel
 
+
 - hosts: rke_k8s_cluster
   gather_facts: true
   roles:
@@ -142,20 +143,6 @@
     - k8s_setup_longhorn
     - k8s_setup_traefik
     - k8s_setup_monitoring
-
-- hosts: rke_servers
-  gather_facts: true
-  roles:
-    - k8s_mariadb
-    - k8s_slurm_mariadb
-    - k8s_slurmctld
-    - k8s_slurmdbd
-
-- hosts: slurm_controller, slurm_worker, slurm_database
-  gather_facts: true
-  environment: "{{ proxy_env | default({}) }}"
-  roles:
-    - slurm_install
 
 - hosts: server, infra, origin
   become: true

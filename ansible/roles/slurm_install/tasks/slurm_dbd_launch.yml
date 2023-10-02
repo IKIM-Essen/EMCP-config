@@ -14,3 +14,9 @@
     mode: "0755"
     owner: "{{ slurm_user_name }}"
     group: "{{ slurm_user_name }}"
+
+- name: Start the database daemon
+  ignore_errors: true  # noqa: ignore-errors
+  community.general.supervisorctl:
+    name: slurmdbd
+    state: started

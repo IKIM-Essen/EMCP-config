@@ -1,0 +1,13 @@
+- name: Add the munge key
+  ansible.builtin.template:
+    src: munge.key.j2
+    dest: /etc/munge/munge.key
+    owner: munge
+    group: munge
+    mode: "0600"
+  notify: restart munge supervisord
+
+- name: Start munge with supervisord
+  community.general.supervisorctl:
+    name: munged
+    state: started

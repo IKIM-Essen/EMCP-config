@@ -68,3 +68,9 @@
     owner: "{{ slurmd_user_name }}"
     group: "{{ slurmd_user_name }}"
     mode: "0755"
+
+- name: Start and enable the worker daemon
+  ansible.builtin.systemd:
+    name: slurmd
+    state: started
+    enabled: true

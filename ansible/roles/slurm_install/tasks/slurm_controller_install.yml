@@ -1,8 +1,243 @@
 ---
-- name: Install the controller daemon and client tools
-  ansible.builtin.apt:
-    name:
-      - slurmctld
-      - slurm-wlm-basic-plugins
-      - slurm-client
+- name: Ensure slurmctld namespace
+  kubernetes.core.k8s:
     state: present
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    api_version: v1
+    kind: Namespace
+    name: "{{ slurm_namespace }}"
+
+- name: Create the ipa admin Secret
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition: "{{ lookup('template', 'ipa_secret.yml.j2') | from_yaml }}"
+
+- name: Create the ipa client ConfigMap
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition: "{{ lookup('template', 'ipa_configmap.yml.j2') | from_yaml }}"
+
+- name: Create the authorized_keys ConfigMap
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition: "{{ lookup('template', 'controller_authorized_keys_configmap.yml.j2') | from_yaml }}"
+
+# A headless service is required for StatefulSet in order to keep the network
+# identity of pods stable.
+- name: Create the internal-facing slurmctld headless service
+  kubernetes.core.k8s:
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ slurmctld_deployment_name }}-headless"
+        namespace: "{{ slurm_namespace }}"
+      spec:
+        selector:
+          app: slurmctld
+        ports:
+          - name: slurmctld
+            protocol: TCP
+            port: "{{ slurmctld_external_port }}"
+            targetPort: "{{ slurmctld_internal_port }}"
+        clusterIP: None
+    state: present
+
+- name: Create the external-facing slurmctld service
+  kubernetes.core.k8s:
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ slurmctld_deployment_name }}-lb"
+        namespace: "{{ slurm_namespace }}"
+        annotations:
+          metallb.universe.tf/loadBalancerIPs: "{{ slurmctld_lb_ip | default(omit) }}"
+      spec:
+        selector:
+          # Since slurmctld doesn't support more than 1 pod, the service should
+          # target it directly. With StatefulSets, the pod name is predictable.
+          statefulset.kubernetes.io/pod-name: "{{ k8s_slurmctld_pod_name }}"
+        ports:
+          - name: slurmctld
+            protocol: TCP
+            port: "{{ slurmctld_external_port }}"
+            targetPort: "{{ slurmctld_internal_port }}"
+          - name: slurmctldssh
+            protocol: TCP
+            port: "{{ slurmctld_external_ssh_port }}"
+            targetPort: "{{ slurmctld_internal_ssh_port }}"
+        # Since slurmctld needs to see the source IP from slurm clients, deploy
+        # it as a LoadBalancer service with externalTrafficPolicy set to Local.
+        externalTrafficPolicy: Local
+        type: LoadBalancer
+    state: present
+
+- name: Create the slurmctld StatefulSet
+  kubernetes.core.k8s:
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    definition:
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: "{{ slurmctld_deployment_name }}"
+        namespace: "{{ slurm_namespace }}"
+        labels:
+          app: slurmctld
+      spec:
+        serviceName: "{{ slurmctld_deployment_name }}-headless"
+        replicas: 1
+        selector:
+          matchLabels:
+            app: slurmctld
+        template:
+          metadata:
+            labels:
+              app: slurmctld
+          spec:
+            # Use an init container to make sure that the slurmctld process can
+            # write to StateSaveLocation.
+            initContainers:
+              - name: state-dir-chown
+                image: "{{ slurmctld_image_url }}"
+                command:
+                  - chown
+                args:
+                  - "{{ slurmctld_state_volume_owner }}:{{ slurmctld_state_volume_owner }}"
+                  - "{{ slurmctld_state_save_location }}"
+                volumeMounts:
+                  - name: slurm-state
+                    mountPath: "{{ slurmctld_state_save_location }}"
+              - name: ssh-pub-keys-mv-chown
+                image: "{{ slurmctld_image_url }}"
+                command:
+                  - /bin/bash
+                  - "-c"
+                  - "cp /pub_ssh_keys/authorized_keys /home/{{ slurmctld_ssh_user }}/.ssh/"
+                  - "&&"
+                  - "chown -R {{ slurmctld_ssh_user }}:{{ slurmctld_ssh_user }} /home/{{ slurmctld_ssh_user }}/.ssh"
+                volumeMounts:
+                  - name: slurmctld-ssh-ro
+                    mountPath: "/pub_ssh_keys"
+                  - name: slurmctld-ssh
+                    mountPath: "/home/{{ slurmctld_ssh_user }}/.ssh"
+            containers:
+              - name: slurmctld
+                image: "{{ slurmctld_image_url }}"
+                imagePullPolicy: "{{ slurmctld_image_pull_policy | default(omit) }}"
+                readinessProbe:
+                  exec:
+                    command:
+                      - /usr/bin/supervisorctl
+                      - status
+                      - sshd
+                  periodSeconds: 3
+                  failureThreshold: 10
+                resources:
+                  requests:
+                    memory: "{{ slurmctld_resources_req_mem }}"
+                    cpu: "{{ slurmctld_resources_req_cpu }}"
+                  limits:
+                    memory: "{{ slurmctld_resources_lim_mem }}"
+                    cpu: "{{ slurmctld_resources_lim_cpu }}"
+                env:
+                  - name: IPAADMIN_PRINCIPAL
+                    valueFrom:
+                      configMapKeyRef:
+                        name: ipaclient
+                        key: ipaadmin_principal
+                  - name: PRIMARY_IPASERVER
+                    valueFrom:
+                      configMapKeyRef:
+                        name: ipaclient
+                        key: primary_ipaserver
+                  - name: IPACLIENT_DOMAIN
+                    valueFrom:
+                      configMapKeyRef:
+                        name: ipaclient
+                        key: ipaclient_domain
+                  - name: IPACLIENT_REALM
+                    valueFrom:
+                      configMapKeyRef:
+                        name: ipaclient
+                        key: ipaclient_realm
+                volumeMounts:
+                  - name: slurm-state
+                    mountPath: "{{ slurmctld_state_save_location }}"
+                  - name: slurm-config
+                    mountPath: "{{ slurmctld_config_dir }}"
+                  - name: munge-config
+                    mountPath: "{{ slurmctld_munge_dir }}"
+                  - name: slurmctld-ssh
+                    mountPath: "/home/{{ slurmctld_ssh_user }}/.ssh"
+                  - name: ipaadmin
+                    mountPath: /ipaadmin
+                    readOnly: true
+                ports:
+                  - containerPort: "{{ slurmctld_internal_port }}"
+                  - containerPort: "{{ slurmctld_internal_ssh_port }}"
+            volumes:
+              - name: ipaadmin
+                secret:
+                  secretName: ipaadmin
+              - name: slurmctld-ssh-ro
+                configMap:
+                  name: authorized-keys-slurmctld
+        volumeClaimTemplates:
+          - metadata:
+              name: slurm-state
+              namespace: "{{ slurm_namespace }}"
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              storageClassName: longhorn
+              resources:
+                requests:
+                  storage: "{{ slurmctld_state_volume_size }}"
+          - metadata:
+              name: slurm-config
+              namespace: "{{ slurm_namespace }}"
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              storageClassName: longhorn
+              resources:
+                requests:
+                  storage: 2Mi
+          - metadata:
+              name: munge-config
+              namespace: "{{ slurm_namespace }}"
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              storageClassName: longhorn
+              resources:
+                requests:
+                  storage: 2Mi
+          - metadata:
+              name: slurmctld-ssh
+              namespace: "{{ slurm_namespace }}"
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              storageClassName: longhorn
+              resources:
+                requests:
+                  storage: 2Mi
+    state: present
+
+- name: Wait until the pod is ready to accept ssh connections
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ rke2_kubeconf_host_path }}{{ rke2_download_kubeconf_file_name }}"
+    kind: Pod
+    name: "{{ k8s_slurmctld_pod_name }}"
+    namespace: "{{ slurm_namespace }}"
+    wait: true
+    wait_condition:
+      type: Ready
+      status: "True"

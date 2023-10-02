@@ -1,0 +1,12 @@
+---
+- name: restart munge systemd
+  become: true
+  ansible.builtin.systemd:
+    name: munge
+    state: restarted
+
+- name: restart munge supervisord
+  become: true
+  community.general.supervisorctl:
+    name: munged
+    state: restarted

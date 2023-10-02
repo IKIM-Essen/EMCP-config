@@ -1,59 +1,48 @@
 ---
-- name: Obtain information for subsequent tasks
+- name: Before upgrading, stop the daemons
   become: true
   block:
-    - ansible.builtin.include_tasks: facts.yml
+    - ansible.builtin.include_tasks: slurm_controller_stop.yml
+      when: inventory_hostname in groups[slurm_controller_group_name]
+    - ansible.builtin.include_tasks: slurm_worker_stop.yml
+      when: inventory_hostname in groups[slurm_worker_group_name]
+    - ansible.builtin.include_tasks: slurm_dbd_stop.yml
+      when: inventory_hostname in groups[slurm_dbd_group_name]
+  when: slurm_upgrade
   tags:
     - slurm
-    - slurm-munge
-    - slurm-node
-
-- name: Install munge
-  become: true
-  block:
-    - ansible.builtin.include_tasks: munge.yml
-  tags:
-    - slurm
-    - slurm-munge
-
-- name: Flush handlers as Munge needs to be up and running for the Slurm daemons to start correctly.
-  ansible.builtin.meta: flush_handlers
-  tags:
-    - slurm
-    - slurm-munge
+    - slurm-dbd
+    - slurm-worker
+    - slurm-controller
 
 - name: Deploy the database node
   become: true
   block:
     - ansible.builtin.include_tasks: slurm_dbd_install.yml
-    - ansible.builtin.include_tasks: slurm_dbd_configure.yml
-    - ansible.builtin.include_tasks: slurm_dbd_start.yml
-  when: inventory_hostname in groups[slurm_dbd_group_name]
+      when: inventory_hostname in groups[rke2_primary_server_group_name]
+    - ansible.builtin.include_tasks: slurm_dbd_launch.yml
+      when: inventory_hostname in groups[slurm_dbd_group_name]
   tags:
     - slurm
-    - slurm-node
     - slurm-dbd
 
 - name: Deploy worker nodes
   become: true
   block:
     - ansible.builtin.include_tasks: slurm_worker_install.yml
-    - ansible.builtin.include_tasks: slurm_worker_configure.yml
-    - ansible.builtin.include_tasks: slurm_worker_start.yml
+    - ansible.builtin.include_tasks: slurm_worker_launch.yml
   when: inventory_hostname in groups[slurm_worker_group_name]
   tags:
     - slurm
-    - slurm-node
     - slurm-worker
 
 - name: Deploy the controller node
   become: true
   block:
     - ansible.builtin.include_tasks: slurm_controller_install.yml
-    - ansible.builtin.include_tasks: slurm_controller_configure.yml
-    - ansible.builtin.include_tasks: slurm_controller_start.yml
-  when: inventory_hostname in groups[slurm_controller_group_name]
+      when: inventory_hostname in groups[rke2_primary_server_group_name]
+    - ansible.builtin.include_tasks: slurm_controller_launch.yml
+      when: inventory_hostname in groups[slurm_controller_group_name]
   tags:
     - slurm
-    - slurm-node
     - slurm-controller

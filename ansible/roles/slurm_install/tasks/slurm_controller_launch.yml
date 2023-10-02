@@ -41,3 +41,9 @@
   when:
     - slurm_install_cmd_sacctmgr_show_cluster['stdout'] is defined
     - slurm_install_cmd_sacctmgr_show_cluster['stdout'] == ''
+
+- name: Start the controller daemon
+  ignore_errors: true  # noqa: ignore-errors
+  community.general.supervisorctl:
+    name: slurmctld
+    state: started

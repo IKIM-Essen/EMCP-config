@@ -1,8 +1,6 @@
 - name: Include slurm-mariadb configuration tasks
   block:
     - ansible.builtin.include_tasks: configure_mariadb.yml
-  when: inventory_hostname in groups[rke2_servers_group_name]
-  run_once: true
   tags:
     - slurm
     - slurm-mariadb

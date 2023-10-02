@@ -1,12 +1,9 @@
 ---
-- name: Add the repository
-  vars:
-    # This name scheme must match the one defined in the slurm_pkgbuild role
-    slurm_install_repo_suffix: "{{ ansible_local['gpu']['count'] | default(0) | ternary('nvidia', '') }}"
-    slurm_install_repo_name: "{{ ansible_distribution_release }}{{ slurm_install_repo_suffix }}"
-  ansible.builtin.apt_repository:
-    repo: "deb [ trusted=yes ] {{ slurm_repo_uri }}/{{ slurm_install_repo_name }} ./"
-    state: present
+- name: Before upgrading, remove the existing packages
+  ansible.builtin.apt:
+    name: "*slurm*"
+    state: absent
+  when: slurm_upgrade
 
 - name: Configure apt to prefer the custom-built slurm packages
   ansible.builtin.copy:
@@ -16,11 +13,16 @@
     group: root
     mode: "0644"
 
-- name: Install the worker daemon and client tools from the custom repository
+- name: Download the deb packages
+  ansible.builtin.unarchive:
+    src: "{{ slurm_worker_debs_url }}"
+    dest: /tmp
+    remote_src: true
+
+- name: Install the worker daemon and client tools
   ansible.builtin.apt:
-    name:
-      - "slurmd={{ slurm_version_with_release }}"
-      - "slurm-wlm-basic-plugins={{ slurm_client_version_with_release }}"
-      - "slurm-client={{ slurm_client_version_with_release }}"
+    deb: "/tmp/{{ slurm_install_item }}"
     state: present
-    update_cache: true
+  loop: "{{ slurm_worker_package_paths }}"
+  loop_control:
+    loop_var: slurm_install_item

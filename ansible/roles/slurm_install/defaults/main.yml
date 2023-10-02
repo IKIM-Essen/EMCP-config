@@ -2,36 +2,27 @@
 slurm_controller_group_name: slurm_controller
 slurm_worker_group_name: slurm_worker
 slurm_dbd_group_name: slurm_database
+rke2_primary_server_group_name: primary_rke_server
 
-# The version to install.
-slurm_version: "19.05.8"
-slurm_version_with_release: "{{ slurm_version }}-1"
-slurm_client_version: "{{ slurm_version }}"
-slurm_client_version_with_release: "{{ slurm_version }}-1"
+# Upgrade mode: if disabled, the daemons are restarted as needed if a
+# configuration change is detected; if enabled, the daemons are stopped
+# unconditionally, then the the regular deployment takes place and finally they
+# are started again. By keeping the daemons stopped for the duration of the
+# deployment, the risk of leaving the cluster in an inconsistent state due to
+# an error is reduced.
+slurm_upgrade: false
 
-# URL of the archive containing the deb packages.
-slurm_worker_debs_url: https://github.com/IKIM-Essen/EMCP-slurm/releases/download/v21.08.5/slurm-21.08.5-ubuntu22.04-debs.zip
+# URL of the archive containing the deb packages
+slurm_worker_debs_url: "https://github.com/IKIM-Essen/EMCP-slurm/releases/download/{{ slurm_worker_debs_tag }}/{{ slurm_worker_debs_archive }}"
 
 # Packages to install on worker nodes as a list of paths relative to the
 # directory where slurm_worker_debs_url is extracted.
+# The order matters: since the Ansible apt module installs each local package
+# in a separate transaction, the list must reflect the dependency sequence.
 slurm_worker_package_paths:
-  - slurm-21.08.5-ubuntu22.04-debs/slurmd_21.08.5-2ubuntu1_amd64.deb
-  - slurm-21.08.5-ubuntu22.04-debs/slurm-wlm-basic-plugins_21.08.5-2ubuntu1_amd64.deb
-  - slurm-21.08.5-ubuntu22.04-debs/slurm-client_21.08.5-2ubuntu1_amd64.deb
-
-# URI of the package repository.
-# The package repository can be built using the slurm_pkgbuild role.
-# See `man sources.list` for the supported URI schemes.
-slurm_repo_local_path: /projects/localrepo
-slurm_repo_uri: "file:{{ slurm_repo_local_path }}"
-
-# The munge secret which is hashed to create the munge key.
-# It should be encrypted with Ansible Vault.
-# It can be any value such as a random string generated with
-# cat /dev/urandom | tr -dc '[:alnum:]' | head -c 128
-# As a general indication, pick a length matching MUNGE_KEY_LEN_DFL_BYTES from
-# from https://github.com/dun/munge/blob/master/src/libcommon/munge_defs.h
-slurm_munge_secret: "{{ vault_slurm_munge_secret }}"
+  - "{{ slurm_worker_debs_dirname }}/slurm-wlm-basic-plugins_{{ slurm_worker_debs_tag }}_amd64.deb"
+  - "{{ slurm_worker_debs_dirname }}/slurm-client_{{ slurm_worker_debs_tag }}_amd64.deb"
+  - "{{ slurm_worker_debs_dirname }}/slurmd_{{ slurm_worker_debs_tag }}_amd64.deb"
 
 # Cluster name for the configuration file
 slurm_cluster_name: slurmcluster
