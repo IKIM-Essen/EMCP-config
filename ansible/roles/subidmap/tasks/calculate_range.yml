@@ -1,10 +1,4 @@
 ---
-
-- name: Check for krb5 package needed for kinit
-  ansible.builtin.apt:
-    name: krb5-user
-    state: present
-
 - name: Check whether a valid kerberos ticket is present
   ansible.builtin.command: klist -s
   changed_when: false

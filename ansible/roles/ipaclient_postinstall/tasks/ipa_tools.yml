@@ -1,0 +1,5 @@
+---
+- name: Install the freeipa command-line client
+  ansible.builtin.apt:
+    name: freeipa-client
+    state: present

@@ -1,7 +1,7 @@
 ---
-- name: Install the krb5 package needed for kinit
+- name: Install the freeipa command-line client
   ansible.builtin.apt:
-    name: krb5-user
+    name: freeipa-client
     state: present
 
 - name: Obtain a kerberos ticket for freeipa
