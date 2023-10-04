@@ -23,3 +23,8 @@
   block:
     - ansible.builtin.include_tasks: sssd_socket_activation.yml
   tags: ipaclient-sssd-socket-activation-fix
+
+- name: Install additional command-line tools
+  block:
+    - ansible.builtin.include_tasks: ipa_tools.yml
+  tags: ipaclient-tools
