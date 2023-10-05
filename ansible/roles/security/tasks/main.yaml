@@ -23,6 +23,12 @@
       - smartmontools
   tags: admin-tools
 
+- name: Keep the ca-certificates package up-to-date
+  apt:
+    pkg: ca-certificates
+    state: latest
+  tags: ca-certificates
+
 - name: Prevent sleep and hibernation
   ansible.builtin.systemd:
     name: "{{ item }}"
