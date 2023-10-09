@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+/usr/bin/systemd-cat \
+	--identifier={{ slurm_cleanup_systemd_unit_name | quote }} \
+	--priority=info \
+	--stderr-priority=err \
+	{{ slurm_cleanup_python_script | quote }} \
+{% for userdir in slurm_local_storage_userdirs %}
+		--userdir-root={{ userdir | quote }} \
+{% endfor %}
+{% for globaldir in slurm_local_storage_globaldirs %}
+		--globaldir={{ globaldir | quote }} \
+{% endfor %}
+		--threshold={{ slurm_local_storage_threshold | quote }}

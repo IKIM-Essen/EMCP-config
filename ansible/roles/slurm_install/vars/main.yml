@@ -26,3 +26,7 @@ slurm_worker_debs_archive: "{{ slurm_worker_debs_dirname }}.tar.gz"
 # The slurm daemon pod names
 k8s_slurmdbd_pod_name: "{{ slurmdbd_deployment_name }}-0"
 k8s_slurmctld_pod_name: "{{ slurmctld_deployment_name }}-0"
+
+slurm_cleanup_shell_script: "{{ slurm_cleanup_script_root }}/local_storage_cleanup.sh"
+slurm_cleanup_python_script: "{{ slurm_cleanup_script_root }}/local_storage_cleanup.py"
+slurm_cleanup_systemd_unit_name: local-storage-cleanup
