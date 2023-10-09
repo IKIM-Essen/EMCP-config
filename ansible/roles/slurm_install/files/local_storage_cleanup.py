@@ -61,9 +61,9 @@ def cleanup(
       1. A slurm command to drain the local node is issued in order to prevent
          the node from accepting jobs while the cleanup takes place.
       2a. If processing a user directory, it is cleaned up only if the user
-         no jobs in the current node's queue.
-      2b. If processing a general-purpose directory, it is cleanup only of the
-          current node has no running jobs.
+          has no jobs in the current node's queue.
+      2b. If processing a general-purpose directory, it is cleaned up only if
+          the current node has no running jobs.
       3. A slurm command to put the node back into service is issued.
     """
     userdir_roots_to_process = [root for root in userdir_roots if _get_free_space(root) < threshold]
