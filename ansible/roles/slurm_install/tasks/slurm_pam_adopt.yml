@@ -21,19 +21,20 @@
     masked: true
     state: stopped
 
-- name: Remove the pam_systemd module given that the systemd-logind service is masked
-  ansible.builtin.command:
-    argv:
-      - pam-auth-update
-      - --remove
-      - systemd
-  changed_when: true
-
-- name: Add the PAM module pam_slurm_adopt at the bottom of the sshd stack
-  ansible.builtin.blockinfile:
-    path: /etc/pam.d/sshd
-    block: "{{ lookup('file', 'sshd-pam-slurm-adopt') }}"
+- name: Add a PAM profile for the pam_slurm_adopt module
+  ansible.builtin.copy:
+    src: pam-config-slurm
+    dest: /usr/share/pam-configs/slurm
     owner: root
     group: root
     mode: "0644"
-    state: present
+
+- name: Generate the PAM configuration
+  ansible.builtin.command:
+    argv:
+      - pam-auth-update
+      - --enable
+      - slurm
+      - --remove
+      - systemd
+  changed_when: true
