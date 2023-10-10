@@ -1,0 +1,8 @@
+Name: Slurm adopt
+Default: no
+# The priority must be higher than /usr/share/pam-configs/sss
+Priority: 129
+
+Account-Type: Additional
+Account:
+	sufficient	pam_slurm_adopt.so

@@ -56,6 +56,8 @@ PriorityWeightTRES=CPU=1000,Mem=2000,GRES/gpu=3000
 #
 # PROLOG/EPILOG
 Epilog=/etc/slurm/epilog.sh
+# The Prolog flag "contain" is required by the pam_slurm_adopt module.
+PrologFlags=contain
 #
 #
 # LOGGING AND ACCOUNTING
