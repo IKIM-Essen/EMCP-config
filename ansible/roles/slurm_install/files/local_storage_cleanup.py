@@ -4,6 +4,7 @@
 import argparse
 from collections.abc import Sequence
 from pathlib import Path
+import time
 import subprocess
 import socket
 import shutil
@@ -16,6 +17,8 @@ _STATE_IDLE = 'idle'
 _SINFO = '/usr/bin/sinfo'
 _SCONTROL = '/usr/bin/scontrol'
 _SQUEUE = '/usr/bin/squeue'
+_DELTA_ONE_WEEK = 604800  # in seconds
+_NOW = int(time.time())  # in seconds, with the fractional part discarded
 _HOSTNAME = socket.getfqdn().split('.', maxsplit=1)[0]
 
 def main() -> int:
@@ -37,6 +40,11 @@ def main() -> int:
         default=[],
         help="general-purpose directory to clean up")
     parser.add_argument(
+        '--ctime-delta',
+        type=int,
+        default=_DELTA_ONE_WEEK,
+        help="delete subdirectories only if their ctime is further in the past than this delta (in seconds)")
+    parser.add_argument(
         '--dry-run',
         action='store_true',
         help="don't actually perform the actions listed in the output")
@@ -45,6 +53,7 @@ def main() -> int:
         userdir_roots=args.userdir_root,
         globaldirs=args.globaldir,
         threshold=args.threshold,
+        ctime_delta=args.ctime_delta,
         dry_run=args.dry_run)
     return 0
 
@@ -52,6 +61,7 @@ def cleanup(
     userdir_roots: Sequence[str],
     globaldirs: Sequence[str],
     threshold: int = THRESHOLD_DEFAULT,
+    ctime_delta: int = _DELTA_ONE_WEEK,
     dry_run: bool = False
 ) -> None:
     """Clean up local storage on the current node.
@@ -65,19 +75,30 @@ def cleanup(
       2b. If processing a general-purpose directory, it is cleaned up only if
           the current node has no running jobs.
       3. A slurm command to put the node back into service is issued.
+
+    The specified paths must represent real directories. Symbolic links are not
+    followed.
     """
-    userdir_roots_to_process = [root for root in userdir_roots if _get_free_space(root) < threshold]
-    globaldirs_to_process = [path for path in globaldirs if _get_free_space(path) < threshold]
+    userdir_roots_to_process = [
+        root for root in userdir_roots
+        if _is_real_dir(root) and (_get_free_space(root) < threshold)]
+    globaldirs_to_process = [
+        path for path in globaldirs
+        if _is_real_dir(path) and (_get_free_space(path) < threshold)]
     if userdir_roots_to_process or globaldirs_to_process:
         _set_node_state(_STATE_DRAIN, dry_run=dry_run)
-        clean_user_dirs(userdir_roots_to_process, dry_run=dry_run)
-        clean_global_dirs(globaldirs_to_process, dry_run=dry_run)
+        clean_user_dirs(userdir_roots_to_process, ctime_delta=ctime_delta, dry_run=dry_run)
+        clean_global_dirs(globaldirs_to_process, ctime_delta=ctime_delta, dry_run=dry_run)
         _set_node_state(_STATE_UNDRAIN, dry_run=dry_run)
     else:
         print('Sufficient disk space. Nothing to do.')
 
-def clean_user_dirs(roots: Sequence[str], dry_run: bool = False) -> None:
-    """Delete user directories in the specified paths.
+def clean_user_dirs(
+    roots: Sequence[str],
+    ctime_delta: int = _DELTA_ONE_WEEK,
+    dry_run: bool = False
+) -> None:
+    """Delete user directories in the specified root paths.
 
     The specified paths must contain subdirectories named after users.
     For example, given path == '/local/cache', the directory
@@ -87,21 +108,30 @@ def clean_user_dirs(roots: Sequence[str], dry_run: bool = False) -> None:
     |- bob/
     |- ...
 
-    If a user has a job in the slurm queue on the current node, their
-    directories are skipped.
+    The deletion of a user directory might be skipped if any of the following
+    conditions hold:
+      - the user has a job in the slurm queue on the current node
+      - the ctime of the directory is more recent than ctime_delta ago
     """
     for root in roots:
         print(f'Cleaning up {root}...')
         for userdir in Path(root).iterdir():
             if _has_job_in_queue(userdir.name):
                 print(f'User {userdir.name} has a job scheduled. Skipping {userdir}.')
+            elif (_NOW - _get_ctime(userdir)) < ctime_delta:
+                print(f'The ctime of {userdir} is more recent than one week ago. Skipping.')
             else:
                 _rmr(userdir, dry_run=dry_run)
 
-def clean_global_dirs(paths: Sequence[str], dry_run: bool = False) -> None:
-    """Delete the contents of the specified paths.
+def clean_global_dirs(
+    paths: Sequence[str],
+    ctime_delta: int = _DELTA_ONE_WEEK,
+    dry_run: bool = False
+) -> None:
+    """Delete the contents of the specified paths (not the paths themselves).
 
-    The specified paths themselves are not deleted.
+    The ctime of the immediate children of each path is compared to the current
+    time: if the item is more recent than ctime_delta, the deletion is skipped.
 
     If the node is not in a drained or idle state, the operation is skipped.
     """
@@ -109,7 +139,10 @@ def clean_global_dirs(paths: Sequence[str], dry_run: bool = False) -> None:
         for path in paths:
             print(f'Cleaning up {path}...')
             for child in Path(path).iterdir():
-                _rmr(child, dry_run=dry_run)
+                if (_NOW - _get_ctime(child)) < ctime_delta:
+                    print(f'The ctime of {child} is more recent than one week ago. Skipping.')
+                else:
+                    _rmr(child, dry_run=dry_run)
     else:
         print("The node is not idle. Skipping global directories.")
 
@@ -117,6 +150,11 @@ def _get_free_space(path: str = '/') -> float:
     """Query the ratio of free to total space."""
     usage = shutil.disk_usage(path)
     return usage.free / usage.total
+
+def _get_ctime(path: str) -> int:
+    """Obtain ctime from stat() and discard the fractional part."""
+    ctime = Path(path).lstat().st_ctime
+    return int(ctime)
 
 def _get_node_state() -> str:
     """Query the slurm state of the current node."""
@@ -150,19 +188,26 @@ def _has_job_in_queue(user: str) -> bool:
         f'--user={user}'])
     return sinfo.stdout.strip()
 
+def _is_real_dir(path: str) -> bool:
+    """Determine whether the specified path points to a directory and not a symlink."""
+    path_obj = Path(path)
+    return path_obj.is_dir() and not path_obj.is_symlink()
+
 def _run(args: Sequence[str], timeout: int = 10) -> subprocess.CompletedProcess:
     """Convenience wrapper around subprocess.run"""
     return subprocess.run(args, timeout=timeout, capture_output=True, check=True, encoding="utf-8")
 
 def _rmr(path: str, dry_run: bool = False) -> None:
-    """Delete the specified file or directory recursively."""
-    path_obj = Path(path)
-    print(f'Deleting {path_obj}...')
+    """Delete the specified file or directory recursively.
+    
+    Symbolic links are not followed.
+    """
+    print(f'Deleting {path}...')
     if not dry_run:
-        if path_obj.is_dir():
-            shutil.rmtree(path=path_obj, ignore_errors=True)
+        if _is_real_dir(path):
+            shutil.rmtree(path, ignore_errors=True)
         else:
-            path_obj.unlink(missing_ok=True)
+            Path(path).unlink(missing_ok=True)
 
 if __name__ == '__main__':
     sys.exit(main())
