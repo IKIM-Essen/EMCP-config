@@ -43,7 +43,7 @@ def main() -> int:
         '--ctime-delta',
         type=int,
         default=_DELTA_ONE_WEEK,
-        help="delete subdirectories only if their ctime is further in the past than this delta (in seconds)")
+        help="delete subdirectories only if their ctime is older than this delta (in seconds)")
     parser.add_argument(
         '--dry-run',
         action='store_true',
@@ -116,12 +116,10 @@ def clean_user_dirs(
     for root in roots:
         print(f'Cleaning up {root}...')
         for userdir in Path(root).iterdir():
-            if _has_job_in_queue(userdir.name):
-                print(f'User {userdir.name} has a job scheduled. Skipping {userdir}.')
-            elif (_NOW - _get_ctime(userdir)) < ctime_delta:
-                print(f'The ctime of {userdir} is more recent than one week ago. Skipping.')
+            if not _has_job_in_queue(userdir.name):
+                _rmr(userdir, ctime_delta=ctime_delta, dry_run=dry_run)
             else:
-                _rmr(userdir, dry_run=dry_run)
+                print(f'User {userdir.name} has a job scheduled. Skipping {userdir}.')
 
 def clean_global_dirs(
     paths: Sequence[str],
@@ -139,10 +137,7 @@ def clean_global_dirs(
         for path in paths:
             print(f'Cleaning up {path}...')
             for child in Path(path).iterdir():
-                if (_NOW - _get_ctime(child)) < ctime_delta:
-                    print(f'The ctime of {child} is more recent than one week ago. Skipping.')
-                else:
-                    _rmr(child, dry_run=dry_run)
+                _rmr(child, ctime_delta=ctime_delta, dry_run=dry_run)
     else:
         print("The node is not idle. Skipping global directories.")
 
@@ -197,17 +192,25 @@ def _run(args: Sequence[str], timeout: int = 10) -> subprocess.CompletedProcess:
     """Convenience wrapper around subprocess.run"""
     return subprocess.run(args, timeout=timeout, capture_output=True, check=True, encoding="utf-8")
 
-def _rmr(path: str, dry_run: bool = False) -> None:
+def _rmr(path: str, ctime_delta: int = None, dry_run: bool = False) -> None:
     """Delete the specified file or directory recursively.
     
     Symbolic links are not followed.
+
+    ctime_delta can be passed as a number of seconds. If it is specified and the
+    latest medatadata change on the target path is more recent than ctime_delta,
+    the operation is skipped. For example, ctime_delta == 3600 causes the
+    operation to be skipped if the ctime of path is more recent than an hour ago.
     """
-    print(f'Deleting {path}...')
-    if not dry_run:
-        if _is_real_dir(path):
-            shutil.rmtree(path, ignore_errors=True)
-        else:
-            Path(path).unlink(missing_ok=True)
+    if (not ctime_delta) or ((_NOW - _get_ctime(path)) > ctime_delta):
+        print(f'Deleting {path}...')
+        if not dry_run:
+            if _is_real_dir(path):
+                shutil.rmtree(path, ignore_errors=True)
+            else:
+                Path(path).unlink(missing_ok=True)
+    else:
+        print(f'The ctime of {path} is more recent than the specified delta. Skipping.')
 
 if __name__ == '__main__':
     sys.exit(main())
