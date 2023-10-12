@@ -4,5 +4,10 @@ set -e
 . "{{ cache_huggingface_virtualenv }}/bin/activate"
 
 for user in $(ls "{{ cache_huggingface_root }}"); do
-	HF_HOME="{{ cache_huggingface_root }}/$user" "{{ cache_huggingface_python_script }}"
+	HF_HOME="{{ cache_huggingface_root }}/$user" \
+	/usr/bin/systemd-cat \
+		--identifier={{ cache_huggingface_systemd_unit_name | quote }} \
+		--priority=info \
+		--stderr-priority=err \
+		{{ cache_huggingface_python_script | quote }}
 done

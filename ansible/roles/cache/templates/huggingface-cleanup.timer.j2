@@ -1,0 +1,9 @@
+[Unit]
+Description=Execute %N.service daily
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=4h
+
+[Install]
+WantedBy=timers.target
