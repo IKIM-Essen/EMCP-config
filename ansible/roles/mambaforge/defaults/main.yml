@@ -1,2 +1,7 @@
-mambaforge_release: "23.3.1-0"
+mambaforge_release: "23.3.1-1"
 mamba_home: /opt/mambaforge
+
+# Define mambaforge_user_env_root to override the default environment locations.
+# Each user will have "{{ mambaforge_user_env_root }}/$USER" as the default
+# environment directory.
+# mambaforge_user_env_root: /var/conda/

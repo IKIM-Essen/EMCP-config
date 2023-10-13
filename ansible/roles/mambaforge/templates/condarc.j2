@@ -14,3 +14,14 @@ channels:
 - conda-forge
 - bioconda
 - defaults
+
+{% if mambaforge_user_env_root is defined %}
+envs_dirs:
+- "{{ mambaforge_user_env_root }}/$USER/envs"
+- ~/.conda/envs
+- "{{ mamba_home }}/envs"
+pkgs_dirs:
+- "{{ mambaforge_user_env_root }}/$USER/pkgs"
+- ~/.conda/pkgs
+- "{{ mamba_home }}/pkgs"
+{% endif %}
