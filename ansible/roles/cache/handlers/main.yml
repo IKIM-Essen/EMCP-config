@@ -1,0 +1,6 @@
+---
+- name: restart huggingface cleanup timer
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ cache_huggingface_systemd_unit_name }}.timer"
+    state: restarted

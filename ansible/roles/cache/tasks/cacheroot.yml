@@ -1,0 +1,8 @@
+---
+- name: Create a root directory for application caches
+  ansible.builtin.file:
+    path: "{{ cache_local_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
