@@ -1,3 +1,0 @@
-cache_local_root: /local/cache
-cache_huggingface_root: "{{ cache_local_root }}/huggingface"
-cache_huggingface_script_root: /opt/huggingface

@@ -1,0 +1,3 @@
+localstorage_cache_root: /local/cache
+localstorage_huggingface_cache_root: "{{ localstorage_cache_root }}/huggingface"
+localstorage_huggingface_script_root: /opt/huggingface

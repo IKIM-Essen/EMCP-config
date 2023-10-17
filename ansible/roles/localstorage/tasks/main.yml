@@ -4,13 +4,13 @@
   block:
     - ansible.builtin.include_tasks: cacheroot.yml
   tags:
-    - cache
-    - cache-root
+    - localstorage
+    - localstorage-cacheroot
 
 - name: Configure the huggingface cache on local storage
   become: true
   block:
     - ansible.builtin.include_tasks: huggingface.yml
   tags:
-    - cache
-    - cache-huggingface
+    - localstorage
+    - localstorage-huggingface

@@ -1,7 +1,7 @@
 ---
 - name: Create the huggingface cache root
   ansible.builtin.file:
-    path: "{{ cache_huggingface_root }}"
+    path: "{{ localstorage_huggingface_cache_root }}"
     state: directory
     owner: root
     group: root
@@ -17,7 +17,7 @@
 
 - name: Create the cache management script root
   ansible.builtin.file:
-    path: "{{ cache_huggingface_script_root }}"
+    path: "{{ localstorage_huggingface_script_root }}"
     state: directory
     owner: root
     group: root
@@ -32,12 +32,12 @@
 - name: Create a python environment for executing the cache management script
   ansible.builtin.pip:
     name: huggingface_hub
-    virtualenv: "{{ cache_huggingface_virtualenv }}"
+    virtualenv: "{{ localstorage_huggingface_virtualenv }}"
 
 - name: Install the top-level shell script
   ansible.builtin.template:
     src: huggingface-cache-cleanup.sh.j2
-    dest: "{{ cache_huggingface_shell_script }}"
+    dest: "{{ localstorage_huggingface_shell_script }}"
     owner: root
     group: root
     mode: "0755"
@@ -45,7 +45,7 @@
 - name: Install the cache management script
   ansible.builtin.copy:
     src: huggingface-cache-cleanup.py
-    dest: "{{ cache_huggingface_python_script }}"
+    dest: "{{ localstorage_huggingface_python_script }}"
     owner: root
     group: root
     mode: "0755"
@@ -53,7 +53,7 @@
 - name: Install the systemd service for executing the shell script
   ansible.builtin.template:
     src: huggingface-cleanup.service.j2
-    dest: "/etc/systemd/system/{{ cache_huggingface_systemd_unit_name }}.service"
+    dest: "/etc/systemd/system/{{ localstorage_huggingface_systemd_unit_name }}.service"
     owner: root
     group: root
     mode: "0644"
@@ -61,7 +61,7 @@
 - name: Install the corresponding timer unit
   ansible.builtin.template:
     src: huggingface-cleanup.timer.j2
-    dest: "/etc/systemd/system/{{ cache_huggingface_systemd_unit_name }}.timer"
+    dest: "/etc/systemd/system/{{ localstorage_huggingface_systemd_unit_name }}.timer"
     owner: root
     group: root
     mode: "0644"
@@ -69,7 +69,7 @@
 
 - name: Enable and start the timer unit
   ansible.builtin.systemd:
-    name: "{{ cache_huggingface_systemd_unit_name }}.timer"
+    name: "{{ localstorage_huggingface_systemd_unit_name }}.timer"
     state: started
     enabled: true
     daemon_reload: true
