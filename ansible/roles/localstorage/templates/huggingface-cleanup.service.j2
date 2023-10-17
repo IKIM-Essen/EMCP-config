@@ -1,10 +1,10 @@
 [Unit]
 Description=Remove old items from the huggingface cache
-ConditionPathExists={{ cache_huggingface_root }}
+ConditionPathExists={{ localstorage_huggingface_cache_root }}
 
 [Service]
 Type=oneshot
-ExecStart="{{ cache_huggingface_shell_script }}"
+ExecStart="{{ localstorage_huggingface_shell_script }}"
 
 [Install]
 WantedBy=multi-user.target

@@ -53,7 +53,7 @@
     - security
     - zsh
     - devtools
-    - cache
+    - localstorage
     - mambaforge
     - snakemake
     - apptainer
@@ -86,7 +86,7 @@
     - nvidia
     - mambaforge
     - devtools
-    - cache
+    - localstorage
     - apptainer
     - seafile
     - poetry

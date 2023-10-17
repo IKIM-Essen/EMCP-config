@@ -1,0 +1,4 @@
+localstorage_huggingface_virtualenv: "{{ localstorage_huggingface_script_root }}/venv"
+localstorage_huggingface_shell_script: "{{ localstorage_huggingface_script_root }}/huggingface-cache-cleanup.sh"
+localstorage_huggingface_python_script: "{{ localstorage_huggingface_script_root }}/huggingface-cache-cleanup.py"
+localstorage_huggingface_systemd_unit_name: huggingface-cleanup

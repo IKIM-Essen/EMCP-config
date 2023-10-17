@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+set -e
+
+. "{{ localstorage_huggingface_virtualenv }}/bin/activate"
+
+for user in $(ls "{{ localstorage_huggingface_cache_root }}"); do
+	HF_HOME="{{ localstorage_huggingface_cache_root }}/$user" \
+	/usr/bin/systemd-cat \
+		--identifier={{ localstorage_huggingface_systemd_unit_name | quote }} \
+		--priority=info \
+		--stderr-priority=err \
+		{{ localstorage_huggingface_python_script | quote }}
+done
