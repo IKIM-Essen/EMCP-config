@@ -7,10 +7,11 @@
     group: root
     mode: "0755"
 
-- name: Configure automatic cleanup
+- name: Configure automatic cleanup for TMPDIR
   ansible.builtin.template:
     src: localtmp.conf.j2
     dest: /etc/tmpfiles.d/localtmp.conf
     owner: root
     group: root
     mode: "0644"
+  notify: create TMPDIR
