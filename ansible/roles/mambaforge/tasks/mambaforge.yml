@@ -16,6 +16,15 @@
     mode: "0755"
     checksum: "sha256:{{ lookup('url', mambaforge_digest_url) | regex_search('[0-9a-f]{64}') }}"
 
+- name: Check the installed version
+  ansible.builtin.command:
+    argv:
+      - "{{ mamba_home }}/condabin/conda"
+      - --version
+  changed_when: false
+  failed_when: false
+  register: conda_version_cmd
+
 - name: Execute the installation script
   ansible.builtin.command:
     argv:
@@ -24,8 +33,11 @@
       - -u
       - -p
       - "{{ mamba_home }}"
-  register: mambaforge_result
-  changed_when: ('All requested packages already installed') not in mambaforge_result['stdout']
+  changed_when: true
+  when:
+    - conda_version_cmd['rc'] is defined
+    - conda_version_cmd['stdout'] is defined
+    - (conda_version_cmd['rc'] != 0) or (conda_version_cmd['stdout'] != 'conda ' ~ mambaforge_conda_version)
 
 - name: Create the custom environment root
   ansible.builtin.file:
