@@ -1,4 +1,20 @@
 ---
+- name: Create a scratch directory
+  become: true
+  block:
+    - ansible.builtin.include_tasks: scratchdir.yml
+  tags:
+    - localstorage
+    - localstorage-scratchdir
+
+- name: Set up TMPDIR
+  become: true
+  block:
+    - ansible.builtin.include_tasks: tmpdir.yml
+  tags:
+    - localstorage
+    - localstorage-tmpdir
+
 - name: Create a local cache root
   become: true
   block:

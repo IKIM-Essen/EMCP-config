@@ -1,0 +1,16 @@
+---
+- name: Set up a custom TMPDIR
+  ansible.builtin.template:
+    src: tmpdir.sh.j2
+    dest: /etc/profile.d/tmpdir.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Configure automatic cleanup
+  ansible.builtin.template:
+    src: localtmp.conf.j2
+    dest: /etc/tmpfiles.d/localtmp.conf
+    owner: root
+    group: root
+    mode: "0644"

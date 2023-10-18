@@ -37,15 +37,3 @@
   become: true
   tags:
     - mount_local
-
-
-- name: Create /local/work directory
-  ansible.builtin.file:
-    path: /local/work
-    state: directory
-    owner: root
-    group: root
-    mode: "0777"
-  become: true
-  tags:
-    - mount_local

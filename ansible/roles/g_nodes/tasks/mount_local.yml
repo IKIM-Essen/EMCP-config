@@ -39,12 +39,3 @@
     fstype: ext4
     opts: acl,user_xattr
     state: mounted
-
-
-- name: Create /local/work directory
-  ansible.builtin.file:
-    path: /local/work
-    state: directory
-    owner: root
-    group: root
-    mode: "0777"

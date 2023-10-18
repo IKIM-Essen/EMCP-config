@@ -1,0 +1,8 @@
+---
+- name: Create a location for general-purpose user directories
+  ansible.builtin.file:
+    path: "{{ localstorage_scratchdir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0777"
