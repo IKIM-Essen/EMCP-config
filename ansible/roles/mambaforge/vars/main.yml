@@ -1,3 +1,4 @@
 mambaforge_script_name: "Mambaforge-{{ mambaforge_release }}-Linux-{{ ansible_facts['architecture'] }}.sh"
 mambaforge_url: "https://github.com/conda-forge/miniforge/releases/download/{{ mambaforge_release }}/{{ mambaforge_script_name }}"
 mambaforge_digest_url: "{{ mambaforge_url }}.sha256"
+mambaforge_conda_version: "{{ mambaforge_release | regex_search('\\d+\\.\\d+\\.\\d+') }}"
