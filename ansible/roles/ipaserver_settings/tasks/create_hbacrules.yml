@@ -1,18 +1,4 @@
 ---
-
-- name: Ensure all hosts can be accessed by admins
-  community.general.ipa_hbacrule:
-    name: allow_admins_all
-    description: Allow admins access to any host from any host
-    hostcategory: all
-    servicecategory: all
-    usergroup: admins
-    ipa_host: "{{ primary_ipaserver }}"
-    ipa_pass: "{{ ipaadmin_password }}"
-    validate_certs: false
-    state: present
-  become: true
-
 - name: Ensure that hostgroups can be accessed by the intended usergroup via ssh
   community.general.ipa_hbacrule:
     name: "{{ ipaserver_settings_item['hbacrule_name'] }}"
