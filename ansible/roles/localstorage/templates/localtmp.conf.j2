@@ -1,2 +1,2 @@
 # Clean up local temp files older than a month
-D {{ localstorage_tmpdir }} 1777 root root 30d
+D {{ localstorage_tmpdir }} {{ localstorage_tmpdir_attrs['mode'] }} {{ localstorage_tmpdir_attrs['owner'] }} {{ localstorage_tmpdir_attrs['group'] }} {{ localstorage_tmpdir_age }}

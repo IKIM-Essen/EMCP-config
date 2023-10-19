@@ -1,6 +1,9 @@
 localstorage_mountpoint: /local
 localstorage_scratchdir: "{{ localstorage_mountpoint }}/work"
+
 localstorage_tmpdir: "{{ localstorage_mountpoint }}/tmp"
+localstorage_tmpdir_age: "30d"
+
 localstorage_cache_root: "{{ localstorage_mountpoint }}/cache"
 localstorage_huggingface_cache_root: "{{ localstorage_cache_root }}/huggingface"
 localstorage_huggingface_script_root: /opt/huggingface

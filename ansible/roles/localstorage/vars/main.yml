@@ -1,3 +1,8 @@
+localstorage_tmpdir_attrs:
+  owner: root
+  group: root
+  mode: "1777"
+
 localstorage_huggingface_virtualenv: "{{ localstorage_huggingface_script_root }}/venv"
 localstorage_huggingface_shell_script: "{{ localstorage_huggingface_script_root }}/huggingface-cache-cleanup.sh"
 localstorage_huggingface_python_script: "{{ localstorage_huggingface_script_root }}/huggingface-cache-cleanup.py"
