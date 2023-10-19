@@ -14,4 +14,11 @@
     owner: root
     group: root
     mode: "0644"
-  notify: create TMPDIR
+
+- name: Create TMPDIR
+  ansible.builtin.file:
+    path: "{{ localstorage_tmpdir }}"
+    state: directory
+    owner: "{{ localstorage_tmpdir_attrs['owner'] }}"
+    group: "{{ localstorage_tmpdir_attrs['group'] }}"
+    mode: "{{ localstorage_tmpdir_attrs['mode'] }}"

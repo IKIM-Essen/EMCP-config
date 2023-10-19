@@ -4,12 +4,3 @@
   ansible.builtin.systemd:
     name: "{{ localstorage_huggingface_systemd_unit_name }}.timer"
     state: restarted
-
-- name: create TMPDIR
-  become: true
-  ansible.builtin.command:
-    argv:
-      - systemd-tmpfiles
-      - --create
-      - "--prefix={{ localstorage_tmpdir }}"
-  changed_when: true
