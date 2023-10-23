@@ -73,3 +73,8 @@
     state: started
     enabled: true
     daemon_reload: true
+
+- name: If Apptainer is installed, mount the cache dir in containers
+  vars:
+    apptainer_bind_path: "{{ localstorage_huggingface_cache_root }}"
+  ansible.builtin.include_tasks: apptainer.yml

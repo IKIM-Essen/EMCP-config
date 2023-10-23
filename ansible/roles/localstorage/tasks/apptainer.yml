@@ -1,0 +1,27 @@
+---
+- name: Check the installed packages
+  ansible.builtin.package_facts:
+
+- name: Check the current bind paths in the Apptainer configuration
+  ansible.builtin.command:
+    argv:
+      - apptainer
+      - config
+      - global
+      - --get
+      - bind path
+  changed_when: false
+  register: apptainer_config_get_cmd
+  when: "'apptainer' in ansible_facts['packages']"
+
+- name: Mount the specified path automatically in Apptainer containers
+  ansible.builtin.command:
+    argv:
+      - apptainer
+      - config
+      - global
+      - --set
+      - bind path
+      - "{{ apptainer_bind_path }}"
+  changed_when: apptainer_bind_path not in (apptainer_config_get_cmd['stdout'] | split(','))
+  when: apptainer_config_get_cmd['stdout'] is defined

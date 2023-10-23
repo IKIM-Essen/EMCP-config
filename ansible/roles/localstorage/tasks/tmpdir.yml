@@ -22,3 +22,8 @@
     owner: "{{ localstorage_tmpdir_attrs['owner'] }}"
     group: "{{ localstorage_tmpdir_attrs['group'] }}"
     mode: "{{ localstorage_tmpdir_attrs['mode'] }}"
+
+- name: If Apptainer is installed, mount TMPDIR in containers
+  vars:
+    apptainer_bind_path: "{{ localstorage_tmpdir }}"
+  ansible.builtin.include_tasks: apptainer.yml
