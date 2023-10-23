@@ -106,8 +106,6 @@
     - docker
     - ipaserver
     - ipaserver_settings
-    - users
-
 
 - hosts: ipaclients
   become: true

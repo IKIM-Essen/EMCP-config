@@ -1,0 +1,33 @@
+---
+- name: Create a temp file to hold the user data
+  ansible.builtin.tempfile:
+    prefix: "usermgmt."
+    suffix: ".userdata"
+    state: file
+  register: usermgmt_tempfile
+
+- name: Populate the tempfile
+  vars:
+    user_list:
+      - username: "{{ item['value']['username'] }}"
+        ssh_public_key: "{{ item['value']['ssh_public_key'] | default([]) }}"
+  ansible.builtin.template:
+    dest: "{{ usermgmt_tempfile['path'] }}"
+    src: templates/usermgmt_file.j2
+    mode: "0600"
+  when: usermgmt_tempfile['path'] is defined
+
+- name: Create the user on the bastion host
+  ansible.builtin.command:
+    argv:
+      - sudo
+      - /root/bin/ikimuseradd.sh
+      - "{{ usermgmt_tempfile['path'] }}"
+    creates: "/home/{{ item['value']['username'] }}"
+  when: usermgmt_tempfile['path'] is defined
+
+- name: Delete the temp file
+  ansible.builtin.file:
+    path: "{{ usermgmt_tempfile['path'] }}"
+    state: absent
+  when: usermgmt_tempfile['path'] is defined

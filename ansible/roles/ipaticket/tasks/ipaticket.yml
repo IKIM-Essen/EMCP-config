@@ -1,0 +1,19 @@
+---
+- name: Check whether a kerberos ticket is present
+  ansible.builtin.command: klist -s
+  changed_when: false
+  failed_when: false
+  register: ipaticket_klist
+
+- name: Obtain a kerberos ticket
+  ansible.builtin.command:
+    argv:
+      - kinit
+      - "{{ ipaadmin_user }}"
+    stdin: "{{ ipaadmin_password }}"
+  changed_when: true
+  no_log: true
+  notify: Clear the Kerberos ticket
+  when:
+    - ipaticket_klist['rc'] is defined
+    - ipaticket_klist['rc'] != 0

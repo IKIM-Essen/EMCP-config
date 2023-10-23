@@ -1,0 +1,32 @@
+---
+- name: Create the slurm user
+  ansible.builtin.command:
+    argv:
+      - sacctmgr
+      - --immediate
+      - create
+      - user
+      - "name={{ item['value']['username'] }}"
+      - "DefaultAccount={{ slurm_account_name }}"
+  register: sacctmgr_result
+  changed_when: not (sacctmgr_result['stdout'] | regex_search('Nothing new added'))
+  failed_when:
+    - sacctmgr_result['rc'] != 0
+    - not (sacctmgr_result['stdout'] | regex_search('Nothing new added'))
+
+- name: Modify the Slurm Admin level of the user
+  become: true
+  ansible.builtin.command:
+    argv:
+      - sacctmgr
+      - --immediate
+      - modify
+      - user
+      - set
+      - AdminLevel=Operator
+      - where
+      - "name={{ item['value']['username'] }}"
+  changed_when: true
+  when:
+    - item['value']['useradmin'] is defined
+    - item['value']['useradmin']

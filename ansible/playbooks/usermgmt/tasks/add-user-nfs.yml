@@ -1,0 +1,8 @@
+---
+- name: Create the user home directory
+  ansible.builtin.command:
+    argv:
+      - sudo
+      - /opt/user_scripts/create_user_home.sh
+      - "{{ item['value']['username'] }}"
+    creates: "/dpool/share/homes/{{ item['value']['username'] }}"

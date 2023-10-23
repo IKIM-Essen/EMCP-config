@@ -1,0 +1,6 @@
+{% for user in user_list %}
+{% if 'ssh_public_key' in user.keys() %}
+{# The script ikimuseradd.sh supports only one ssh key #}
+{{ user['username'] }} {{ user['ssh_public_key'][0] }}
+{% endif %}
+{% endfor %}
