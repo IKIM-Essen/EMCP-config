@@ -5,6 +5,7 @@
       - python3-venv
       - python3-pip
       - tmux
+      - socat
       - git-lfs
       - rename
       - direnv
