@@ -7,10 +7,19 @@
     mode: "0755"
   register: snakemake_profile_dir
 
-- name: Add the profile
+- name: Add legacy profile
   ansible.builtin.template:
     src: profile.yaml.j2
     dest: "{{ snakemake_profile_dir['path'] }}/config.yaml"
+    owner: root
+    group: root
+    mode: "0644"
+  when: snakemake_profile_dir['path'] is defined
+
+- name: Add Snakemake >=8 profile
+  ansible.builtin.template:
+    src: profile.v8+.yaml.j2
+    dest: "{{ snakemake_profile_dir['path'] }}/config.v8+.yaml"
     owner: root
     group: root
     mode: "0644"
