@@ -1,2 +1,4 @@
+snakemake_profile_name: ikim
+
 # Inventory group names
 slurm_worker_group_name: slurm_worker

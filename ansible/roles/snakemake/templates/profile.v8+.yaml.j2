@@ -1,0 +1,6 @@
+{% if inventory_hostname in groups[slurm_worker_group_name] %}
+executor: slurm
+{% endif %}
+software-deployment-method:
+  - conda
+latency-wait: 60

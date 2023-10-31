@@ -1,17 +1,31 @@
 - name: Create the profile directory
   ansible.builtin.file:
-    path: "/etc/xdg/snakemake/{{ (inventory_hostname in groups[slurm_worker_group_name]) | ternary('slurm', 'local') }}"
+    path: "/etc/xdg/snakemake/{{ snakemake_profile_name }}"
     state: directory
     owner: root
     group: root
     mode: "0755"
-  register: snakemake_profile_dir
 
-- name: Add the profile
+- name: Add the legacy profile
   ansible.builtin.template:
     src: profile.yaml.j2
-    dest: "{{ snakemake_profile_dir['path'] }}/config.yaml"
+    dest: "/etc/xdg/snakemake/{{ snakemake_profile_name }}/config.yaml"
     owner: root
     group: root
     mode: "0644"
-  when: snakemake_profile_dir['path'] is defined
+
+- name: Add the Snakemake >=8 profile
+  ansible.builtin.template:
+    src: profile.v8+.yaml.j2
+    dest: "/etc/xdg/snakemake/{{ snakemake_profile_name }}/config.v8+.yaml"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Set the profile name in the appropriate environment variable
+  ansible.builtin.template:
+    src: snakemake.sh.j2
+    dest: /etc/profile.d/snakemake.sh
+    owner: root
+    group: root
+    mode: "0755"
