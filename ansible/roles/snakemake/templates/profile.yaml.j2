@@ -3,3 +3,6 @@ slurm: true
 {% endif %}
 use-conda: true
 latency-wait: 60
+default-resources:
+  mem_mb: min(max(2*input.size_mb, 1000), 30000)
+  tmpdir: system_tmpdir
