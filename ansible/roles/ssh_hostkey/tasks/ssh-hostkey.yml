@@ -1,0 +1,27 @@
+---
+- name: Copy the private key
+  ansible.builtin.template:
+    src: key.j2
+    dest: "/etc/ssh/{{ ssh_hostkey_filename }}"
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Reload sshd
+
+- name: Copy the public key
+  ansible.builtin.template:
+    src: key.pub.j2
+    dest: "/etc/ssh/{{ ssh_hostkey_filename }}.pub"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload sshd
+
+- name: Instruct sshd to serve the key
+  ansible.builtin.template:
+    src: 00-hostkey.conf.j2
+    dest: /etc/ssh/sshd_config.d/00-hostkey.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload sshd

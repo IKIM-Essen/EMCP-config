@@ -1,0 +1,6 @@
+---
+- name: Set up the ssh host key
+  become: true
+  block:
+    - ansible.builtin.include_tasks: ssh-hostkey.yml
+  tags: ssh-hostkey

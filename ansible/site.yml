@@ -134,6 +134,10 @@
     - nfs_shares
     - user_skel
 
+- hosts: dns_roundrobin
+  environment: "{{ proxy_env | default({}) }}"
+  roles:
+    - ssh_hostkey
 
 - hosts: rke_k8s_cluster
   gather_facts: true
