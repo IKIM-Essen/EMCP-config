@@ -1,0 +1,1 @@
+custom_pkgs_prefix: "{{ (custom_pkgs_archive is defined) | ternary('/tmp', '')  }}"

@@ -1,0 +1,26 @@
+---
+- name: Obtain the package name
+  ansible.builtin.command:
+    argv:
+      - dpkg-deb
+      - --field
+      - "{{ custom_pkgs_path }}"
+      - Package
+  changed_when: false
+  register: custom_pkgs_dpkg_deb
+
+- name: Install the package
+  ansible.builtin.apt:
+    deb: "{{ custom_pkgs_path }}"
+    allow_change_held_packages: true
+    state: present
+
+- name: Prevent the package manager from upgrading the package from a different source
+  ansible.builtin.command:
+    argv:
+      - apt-mark
+      - hold
+      - "{{ custom_pkgs_dpkg_deb['stdout'] }}"
+  register: custom_pkgs_apt_mark
+  changed_when: custom_pkgs_apt_mark['stdout'] == (custom_pkgs_dpkg_deb['stdout'] ~ ' set on hold.')
+  when: custom_pkgs_dpkg_deb['stdout'] is defined
