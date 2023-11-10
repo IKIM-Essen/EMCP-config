@@ -1,0 +1,7 @@
+---
+- name: Extract the archive
+  ansible.builtin.unarchive:
+    src: "{{ custom_pkgs_archive }}"
+    dest: "{{ custom_pkgs_prefix }}"
+    remote_src: true
+  when: custom_pkgs_archive is defined

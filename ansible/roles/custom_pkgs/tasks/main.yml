@@ -1,0 +1,19 @@
+---
+- name: Extract the package archive
+  block:
+    - ansible.builtin.include_tasks: extract.yml
+  tags:
+    - custom-pkgs
+    - custom-pkgs-extract
+
+- name: Install the deb packages
+  block:
+    - ansible.builtin.include_tasks: installdeb.yml
+      vars:
+        custom_pkgs_path: "{{ (custom_pkgs_prefix, custom_pkgs_item) | path_join }}"
+      loop: "{{ custom_pkgs_debs }}"
+      loop_control:
+        loop_var: custom_pkgs_item
+  tags:
+    - custom-pkgs
+    - custom-pkgs-install
