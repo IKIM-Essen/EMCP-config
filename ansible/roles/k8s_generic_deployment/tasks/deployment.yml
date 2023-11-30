@@ -8,8 +8,8 @@
     - namespace.yml.j2
     - configmap.yml.j2
     - secret.yml.j2
+    - pull-secret.yml.j2
     - service.yml.j2
-    - traefik_ingressroute.yml.j2
     - deployment.yml.j2
   loop_control:
     loop_var: k8s_generic_deployment_item

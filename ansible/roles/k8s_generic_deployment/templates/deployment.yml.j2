@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: {{ k8s_deployment_container_name }}
-          image: {{ k8s_deployment_container_image }}
+          image: {{ k8s_deployment_container_registry }}/{{ k8s_deployment_container_image_name }}
           ports:
             - name: {{ k8s_deployment_container_port_name }}
               containerPort: {{ k8s_deployment_container_port_number }}
@@ -23,3 +23,5 @@ spec:
                 name: {{ k8s_deployment_configmap_name }}
             - secretRef:
                 name: {{ k8s_deployment_secret_name }}
+      imagePullSecrets:
+        - name: {{ k8s_deployment_pull_secret_name }}
