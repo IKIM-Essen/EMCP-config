@@ -1,12 +1,12 @@
 ---
-- name: reload autofs
-  become: true
-  ansible.builtin.systemd:
-    name: autofs
-    state: reloaded
-
 - name: restart cachefilesd
   become: true
   ansible.builtin.systemd:
     name: cachefilesd
     state: restarted
+
+- name: reload autofs
+  become: true
+  ansible.builtin.systemd:
+    name: autofs
+    state: reloaded

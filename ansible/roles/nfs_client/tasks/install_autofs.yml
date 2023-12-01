@@ -6,8 +6,25 @@
       - autofs
     state: present
 
+- name: Create a config directory for the autofs service
+  ansible.builtin.file:
+    path: /etc/systemd/system/autofs.service.d
+    owner: root
+    group: root
+    mode: "0755"
+    state: directory
+
+- name: Configure autofs to delay the startup so that sssd has more time to launch fully
+  ansible.builtin.template:
+    src: delay-startup.conf.j2
+    dest: /etc/systemd/system/autofs.service.d/delay-startup.conf
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Make sure autofs is running
   ansible.builtin.systemd:
     name: autofs
     enabled: true
+    daemon_reload: true
     state: started
