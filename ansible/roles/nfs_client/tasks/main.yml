@@ -1,4 +1,10 @@
 ---
+- name: Configure cachefilesd
+  become: true
+  block:
+    - ansible.builtin.include_tasks: cachefilesd.yml
+  tags: nfs-client
+
 - name: Install autofs
   become: true
   block:
@@ -17,14 +23,4 @@
   block:
     - ansible.builtin.include_tasks: ipa_automount.yml
   when: ipa_automounts_enabled
-  tags: nfs-client
-
-- name: Flush any autofs handlers before setting up cachefilesd
-  ansible.builtin.meta: flush_handlers
-  tags: nfs-client
-
-- name: Configure cachefilesd
-  become: true
-  block:
-    - ansible.builtin.include_tasks: cachefilesd.yml
   tags: nfs-client

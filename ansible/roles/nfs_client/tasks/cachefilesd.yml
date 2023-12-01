@@ -3,10 +3,27 @@
     name: cachefilesd
     state: present
 
-- name: Make sure the cachefilesd service is running
+- name: Create a config directory for the cachefilesd service
+  ansible.builtin.file:
+    path: /etc/systemd/system/cachefilesd.service.d
+    owner: root
+    group: root
+    mode: "0755"
+    state: directory
+
+- name: Configure cachefilesd restart automatically on failure to avoid issues during startup
+  ansible.builtin.template:
+    src: restart-on-failure.conf.j2
+    dest: /etc/systemd/system/cachefilesd.service.d/restart-on-failure.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start the cachefilesd service
   ansible.builtin.systemd:
     name: cachefilesd
     enabled: true
+    daemon_reload: true
     state: started
 
 - name: Create the cache directory
