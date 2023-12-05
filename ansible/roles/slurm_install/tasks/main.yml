@@ -51,7 +51,7 @@
   become: true
   block:
     - ansible.builtin.include_tasks: slurm_pam_adopt.yml
-    - ansible.builtin.include_tasks: local_storage_cleanup.yml
+    - ansible.builtin.include_tasks: node_maintenance.yml
   when: inventory_hostname in groups[slurm_compute_group_name]
   tags:
     - slurm

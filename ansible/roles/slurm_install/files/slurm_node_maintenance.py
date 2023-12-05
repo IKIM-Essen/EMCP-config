@@ -14,15 +14,27 @@ THRESHOLD_DEFAULT=0.2
 _STATE_UNDRAIN = 'undrain'
 _STATE_DRAIN = 'drain'
 _STATE_IDLE = 'idle'
+_STATE_RESUME = 'resume'
 _SINFO = '/usr/bin/sinfo'
 _SCONTROL = '/usr/bin/scontrol'
 _SQUEUE = '/usr/bin/squeue'
+_UNATTENDED_UPGRADE = '/usr/bin/unattended-upgrade'
+_DURATION_ONE_HOUR = 3600  # in seconds
 _DELTA_ONE_WEEK = 604800  # in seconds
 _NOW = int(time.time())  # in seconds, with the fractional part discarded
 _HOSTNAME = socket.getfqdn().split('.', maxsplit=1)[0]
 
 def main() -> int:
-    """Define the command-line parameters and invoke the cleanup function."""
+    """Define the command-line parameters and execute the maintenance logic.
+
+    The unattended maintenance logic consists of the following steps:
+      1. A slurm command to drain the local node is issued in order to prevent
+         the node from accepting jobs.
+      2  Cache and local storage are cleaned up if needed.
+      3. OS package upgrades are carried out.
+      4. If necessary to complete the upgrades, the node is rebooted, otherwise
+         a slurm command to undrain is issued.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--threshold',
@@ -49,13 +61,22 @@ def main() -> int:
         action='store_true',
         help="don't actually perform the actions listed in the output")
     args = parser.parse_args()
+
+    drain(dry_run=args.dry_run)
     cleanup(
         userdir_roots=args.userdir_root,
         globaldirs=args.globaldir,
         threshold=args.threshold,
         ctime_delta=args.ctime_delta,
         dry_run=args.dry_run)
+    upgrade_pkgs(dry_run=args.dry_run)
+    undrain_or_reboot(dry_run=args.dry_run)
+
     return 0
+
+def drain(dry_run: bool = False) -> None:
+    """Issue a drain command via slurm."""
+    _set_node_state(_STATE_DRAIN, dry_run=dry_run)
 
 def cleanup(
     userdir_roots: Sequence[str],
@@ -66,19 +87,17 @@ def cleanup(
 ) -> None:
     """Clean up local storage on the current node.
 
-    For each directory to clean up, if the available space is less than the
-    specified threshold, the following steps take place:
-      1. A slurm command to drain the local node is issued in order to prevent
-         the node from accepting jobs while the cleanup takes place.
-      2a. If processing a user directory, it is cleaned up only if the user
-          has no jobs in the current node's queue.
-      2b. If processing a general-purpose directory, it is cleaned up only if
-          the current node has no running jobs.
-      3. A slurm command to put the node back into service is issued.
+    If the available space is less than the specified threshold, an attempt to
+    recover space is made as follows:
+      - if processing a user directory, it is cleaned up only if the user
+        has no jobs in the current node's queue;
+      - if processing a general-purpose directory, it is cleaned up only if
+        the node has no running jobs.
 
     The specified paths must represent real directories. Symbolic links are not
     followed.
     """
+    print('Evaluating the available space...')
     userdir_roots_to_process = [
         root for root in userdir_roots
         if _is_real_dir(root) and (_get_free_space(root) < threshold)]
@@ -86,12 +105,11 @@ def cleanup(
         path for path in globaldirs
         if _is_real_dir(path) and (_get_free_space(path) < threshold)]
     if userdir_roots_to_process or globaldirs_to_process:
-        _set_node_state(_STATE_DRAIN, dry_run=dry_run)
+        print('The available space is below the configured threshold. Starting cleanup...')
         clean_user_dirs(userdir_roots_to_process, ctime_delta=ctime_delta, dry_run=dry_run)
         clean_global_dirs(globaldirs_to_process, ctime_delta=ctime_delta, dry_run=dry_run)
-        _set_node_state(_STATE_UNDRAIN, dry_run=dry_run)
     else:
-        print('Sufficient disk space. Nothing to do.')
+        print('The available space meets the configured threshold. Nothing to do.')
 
 def clean_user_dirs(
     roots: Sequence[str],
@@ -141,6 +159,33 @@ def clean_global_dirs(
     else:
         print("The node is not idle. Skipping global directories.")
 
+def upgrade_pkgs(dry_run: bool = False) -> None:
+    """Carry out OS package upgrades."""
+    if _get_node_state() in (_STATE_DRAIN, _STATE_IDLE):
+        upgrade_cmd = [_UNATTENDED_UPGRADE]
+        if dry_run:
+            upgrade_cmd.append('--dry-run')
+        print(f'Upgrading packages...')
+        _run(upgrade_cmd)
+    else:
+        print("The node is not idle. Skipping package upgrades.")
+
+def undrain_or_reboot(dry_run: bool = False) -> None:
+    """Reboot if needed to complete an upgrade, otherwise undrain."""
+    if not dry_run and Path('/run/reboot-required').exists():
+        if _get_node_state() in (_STATE_DRAIN, _STATE_IDLE):
+            print(f'Rebooting to apply upgrades...')
+            scontrol = _run([
+                _SCONTROL,
+                'reboot',
+                f'nextstate={_STATE_RESUME}',
+                'reason=Apply upgrades',
+                f'{_HOSTNAME}'])
+        else:
+            print("The node is not idle. Skipping reboot.")
+    else:
+        _set_node_state(_STATE_UNDRAIN, dry_run=dry_run)
+
 def _get_free_space(path: str = '/') -> float:
     """Query the ratio of free to total space."""
     usage = shutil.disk_usage(path)
@@ -170,7 +215,7 @@ def _set_node_state(state: str, dry_run: bool = False) -> int:
             'update',
             f'nodename={_HOSTNAME}',
             f'state={state}',
-            'reason=Local storage cleanup'])
+            'reason=Automated maintenance'])
         return scontrol.returncode
     return 0
 
@@ -188,8 +233,8 @@ def _is_real_dir(path: str) -> bool:
     path_obj = Path(path)
     return path_obj.is_dir() and not path_obj.is_symlink()
 
-def _run(args: Sequence[str], timeout: int = 10) -> subprocess.CompletedProcess:
-    """Convenience wrapper around subprocess.run"""
+def _run(args: Sequence[str], timeout: int = _DURATION_ONE_HOUR) -> subprocess.CompletedProcess:
+    """A convenience wrapper around subprocess.run."""
     return subprocess.run(args, timeout=timeout, capture_output=True, check=True, encoding="utf-8")
 
 def _rmr(path: str, ctime_delta: int = None, dry_run: bool = False) -> None:

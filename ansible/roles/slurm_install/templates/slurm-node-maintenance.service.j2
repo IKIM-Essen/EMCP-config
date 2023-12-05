@@ -1,5 +1,5 @@
 [Unit]
-Description=Clean local storage
+Description=Clean up local storage and carry out package upgrades
 {% for userdir in slurm_local_storage_userdirs %}
 ConditionPathExists={{ userdir }}
 {% endfor %}
@@ -9,7 +9,7 @@ ConditionPathExists={{ globaldir }}
 
 [Service]
 Type=oneshot
-ExecStart="{{ slurm_cleanup_shell_script }}"
+ExecStart="{{ slurm_node_maintenance_shell_script }}"
 
 [Install]
 WantedBy=multi-user.target

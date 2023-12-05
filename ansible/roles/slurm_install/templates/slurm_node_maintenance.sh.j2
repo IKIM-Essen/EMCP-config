@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
 
 /usr/bin/systemd-cat \
-	--identifier={{ slurm_cleanup_systemd_unit_name | quote }} \
+	--identifier={{ slurm_node_maintenance_systemd_unit_name | quote }} \
 	--priority=info \
 	--stderr-priority=err \
-	{{ slurm_cleanup_python_script | quote }} \
+	{{ slurm_node_maintenance_python_script | quote }} \
 {% for userdir in slurm_local_storage_userdirs %}
 		--userdir-root={{ userdir | quote }} \
 {% endfor %}

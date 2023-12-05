@@ -84,11 +84,11 @@ slurm_partitions:
     default: true
     opts: ""
 
-# Destination directory of the local storage cleanup script on each node
-slurm_cleanup_script_root: /opt/cleanup
+# Destination directory of the automated maintenance script on each node
+slurm_node_maintenance_script_root: /opt/maintenance
 
-# Parameters of the local storage cleanup script
-# The cleanup script runs only if the ratio of free to total space on the
+# Parameters of the local storage cleanup logic in the maintenance script.
+# Cleanup is carried out only if the ratio of free to total space on the
 # specified paths is lower than slurm_local_storage_threshold.
 slurm_local_storage_threshold: 0.2
 slurm_local_storage_userdirs: []

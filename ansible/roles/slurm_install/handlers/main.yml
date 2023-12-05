@@ -33,8 +33,8 @@
     state: started
   when: not slurm_upgrade
 
-- name: restart cleanup timer
+- name: restart maintenance timer
   become: true
   ansible.builtin.systemd:
-    name: "{{ slurm_cleanup_systemd_unit_name }}.timer"
+    name: "{{ slurm_node_maintenance_systemd_unit_name }}.timer"
     state: restarted
