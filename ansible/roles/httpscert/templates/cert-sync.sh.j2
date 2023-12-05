@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+set -e
+
+CERT_SOURCE="{{ httpscert_minio_alias }}/{{ httpscert_minio_bucket }}/{{ httpscert_domain }}/fullchain.pem"
+CERT_DEST="{{ httpscert_fullchain_path }}"
+PRIVKEY_SOURCE="{{ httpscert_minio_alias }}/{{ httpscert_minio_bucket }}/{{ httpscert_domain }}/privkey.pem"
+PRIVKEY_DEST="{{ httpscert_privkey_path }}"
+
+if ! rclone check "$CERT_SOURCE" "$CERT_DEST"; then
+	rclone copyto "$CERT_SOURCE" "$CERT_DEST"
+	rclone copyto "$PRIVKEY_SOURCE" "$PRIVKEY_DEST"
+	chown "{{ httpscert_owner }}:{{ httpscert_group }}" "$CERT_DEST" "$PRIVKEY_DEST"
+	chmod 600 "$CERT_DEST" "$PRIVKEY_DEST"
+	{{ httpscert_post_cmd }}
+fi

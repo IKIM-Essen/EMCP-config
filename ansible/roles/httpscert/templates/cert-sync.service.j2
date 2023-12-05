@@ -1,0 +1,9 @@
+[Unit]
+Description=Obtain a wildcard https certificate and restart the appropriate services
+
+[Service]
+Type=oneshot
+ExecStart={{ httpscert_sync_script_dir }}/cert-sync.sh
+
+[Install]
+WantedBy=multi-user.target

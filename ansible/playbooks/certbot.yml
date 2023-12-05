@@ -1,0 +1,39 @@
+---
+- hosts: certbot
+  environment: "{{ proxy_env | default({}) }}"
+  roles:
+    - httpscert
+
+- hosts: ipaserver
+  environment: "{{ proxy_env | default({}) }}"
+  vars:
+    httpscert_fullchain_path: /var/lib/ipa-data/var/lib/ipa/certs/le.crt
+    httpscert_privkey_path: /var/lib/ipa-data/var/lib/ipa/private/le.key
+    httpscert_post_cmd: |
+      systemctl restart freeipa
+  roles:
+    - httpscert
+
+- hosts: minio
+  environment: "{{ proxy_env | default({}) }}"
+  vars:
+    httpscert_fullchain_path: /etc/minio/certs/public.crt
+    httpscert_privkey_path: /etc/minio/certs/private.key
+    httpscert_owner: minio-user
+    httpscert_group: minio-user
+    httpscert_post_cmd: |
+      systemctl restart minio-hdd
+      mc admin service restart local-hdd
+  roles:
+    - httpscert
+
+- hosts: gitlab
+  environment: "{{ proxy_env | default({}) }}"
+  vars:
+    httpscert_fullchain_path: /etc/gitlab/ssl/gitlab.{{ httpscert_domain }}.crt
+    httpscert_privkey_path: "/etc/gitlab/ssl/gitlab.{{ httpscert_domain }}.key"
+    httpscert_post_cmd: |
+      gitlab-ctl reconfigure
+      systemctl restart gitlab
+  roles:
+    - httpscert

@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+mc mirror \
+	"/etc/letsencrypt/live/{{ httpscert_domain }}" \
+	"{{ httpscert_minio_alias }}/{{ httpscert_minio_bucket }}"

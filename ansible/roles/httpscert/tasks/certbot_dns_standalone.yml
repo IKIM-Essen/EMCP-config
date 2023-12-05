@@ -1,0 +1,80 @@
+---
+- name: Install certbot with the standalone dns plugin
+  ansible.builtin.apt:
+    deb: certbot-dns-standalone
+    state: present
+
+- name: Run certbot
+  ansible.builtin.command:
+    argv:
+      - certbot
+      - --dry-run
+      - --non-interactive
+      - --agree-tos
+      - --email
+      - "{{ httpscert_email }}"
+      - certonly
+      - --authenticator
+      - dns-standalone
+      - --domain
+      - "{{ httpscert_domain }}"
+      - --domain
+      - "*.{{ httpscert_domain }}"
+
+- name: Install the minio client required by the deploy hook
+  ansible.builtin.get_url:
+    url: https://dl.min.io/client/mc/release/linux-amd64/mc
+    dest: /usr/local/bin/mc
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Set up minio
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/mc
+      - alias
+      - set
+      - "{{ httpscert_minio_alias }}"
+      - "{{ httpscert_minio_endpoint }}"
+      - "{{ httpscert_minio_access_key }}"
+      - "{{ httpscert_minio_secret_key }}"
+  no_log: true
+
+- name: Test the minio connection
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/mc
+      - admin
+      - info
+      - "{{ httpscert_minio_alias }}"
+
+- name: Create the minio bucket
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/mc
+      - mb
+      - --ignore-existing
+      - "{{ httpscert_minio_alias }}/{{ httpscert_minio_bucket }}"
+
+- name: Install the deploy hook for copying the certificate to minio
+  ansible.builtin.copy:
+    src: copy-to-minio.sh.j2
+    dest: /etc/letsencrypt/renewal-hooks/deploy/copy-to-minio.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Run a renewal to trigger the deploy hook
+  ansible.builtin.command:
+    argv:
+      - certbot
+      - --dry-run
+      - --non-interactive
+      - renew
+
+- name: Start the certbot timer
+  ansible.builtin.systemd:
+    name: certbot.timer
+    state: started
+    enabled: true

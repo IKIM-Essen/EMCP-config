@@ -1,0 +1,18 @@
+---
+- name: Set up certbot-dns-standalone
+  become: true
+  block:
+    - ansible.builtin.include_tasks: certbot_dns_standalone.yml
+  tags:
+    - httpscert
+    - httpscert-renew
+  when: inventory_hostname in groups[httpscert_certbot_inventory_group]
+
+- name: Set up a systemd timer for updating certificates from minio
+  become: true
+  block:
+    - ansible.builtin.include_tasks: cert_timer.yml
+  tags:
+    - httpscert
+    - httpscert-sync
+  when: inventory_hostname in groups[httpscert_sync_inventory_group]
