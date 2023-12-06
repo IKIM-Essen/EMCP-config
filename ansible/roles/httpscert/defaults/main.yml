@@ -30,5 +30,5 @@ httpscert_owner: root
 httpscert_group: root
 
 # A shell block to execute after copying the new certificate and private key in place
-httpscert_post_cmd: |
-  systemctl restart example.service
+# httpscert_post_cmd: |
+#   systemctl restart example.service

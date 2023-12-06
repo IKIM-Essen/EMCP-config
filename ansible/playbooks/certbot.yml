@@ -21,9 +21,7 @@
     httpscert_privkey_path: /etc/minio/certs/private.key
     httpscert_owner: minio-user
     httpscert_group: minio-user
-    httpscert_post_cmd: |
-      mc admin service restart local
-      mc admin service restart local-hdd
+    # No httpscert_post_cmd needed for minio: see https://github.com/minio/minio/pull/5963
   roles:
     - httpscert
 
@@ -33,6 +31,8 @@
     httpscert_fullchain_path: /etc/gitlab/ssl/gitlab.{{ httpscert_domain }}.crt
     httpscert_privkey_path: "/etc/gitlab/ssl/gitlab.{{ httpscert_domain }}.key"
     httpscert_post_cmd: |
-      gitlab-ctl reconfigure
+      # https://docs.gitlab.com/omnibus/settings/ssl/#update-the-ssl-certificates
+      gitlab-ctl hup nginx
+      gitlab-ctl hup registry
   roles:
     - httpscert

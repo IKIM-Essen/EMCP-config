@@ -11,5 +11,7 @@ if ! rclone check "$CERT_SOURCE" "$CERT_DEST"; then
 	rclone copyto "$PRIVKEY_SOURCE" "$PRIVKEY_DEST"
 	chown "{{ httpscert_owner }}:{{ httpscert_group }}" "$CERT_DEST" "$PRIVKEY_DEST"
 	chmod 600 "$CERT_DEST" "$PRIVKEY_DEST"
+{% if httpscert_post_cmd is defined %}
 	{{ httpscert_post_cmd }}
+{% endif %}
 fi
