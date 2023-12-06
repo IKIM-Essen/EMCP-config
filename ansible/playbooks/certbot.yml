@@ -22,8 +22,10 @@
     httpscert_owner: minio-user
     httpscert_group: minio-user
     httpscert_post_cmd: |
-      systemctl restart minio-hdd
+      mc admin service restart minio-hdd
       mc admin service restart local-hdd
+      systemctl restart minio-hdd
+      systemctl restart local-hdd
   roles:
     - httpscert
 
