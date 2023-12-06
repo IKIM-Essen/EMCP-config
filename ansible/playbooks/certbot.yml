@@ -22,10 +22,8 @@
     httpscert_owner: minio-user
     httpscert_group: minio-user
     httpscert_post_cmd: |
-      mc admin service restart minio-hdd
+      mc admin service restart local
       mc admin service restart local-hdd
-      systemctl restart minio-hdd
-      systemctl restart local-hdd
   roles:
     - httpscert
 
@@ -36,6 +34,5 @@
     httpscert_privkey_path: "/etc/gitlab/ssl/gitlab.{{ httpscert_domain }}.key"
     httpscert_post_cmd: |
       gitlab-ctl reconfigure
-      systemctl restart gitlab
   roles:
     - httpscert
