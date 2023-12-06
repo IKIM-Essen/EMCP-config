@@ -18,7 +18,7 @@ _STATE_RESUME = 'resume'
 _SINFO = '/usr/bin/sinfo'
 _SCONTROL = '/usr/bin/scontrol'
 _SQUEUE = '/usr/bin/squeue'
-_UNATTENDED_UPGRADE = '/usr/bin/unattended-upgrade'
+_APTGET = '/usr/bin/apt-get'
 _DURATION_ONE_HOUR = 3600  # in seconds
 _DELTA_ONE_WEEK = 604800  # in seconds
 _NOW = int(time.time())  # in seconds, with the fractional part discarded
@@ -162,11 +162,15 @@ def clean_global_dirs(
 def upgrade_pkgs(dry_run: bool = False) -> None:
     """Carry out OS package upgrades."""
     if _get_node_state() in (_STATE_DRAIN, _STATE_IDLE):
-        upgrade_cmd = [_UNATTENDED_UPGRADE]
+        upgrade_cmd = [_APTGET, '-y', 'dist-upgrade']
+        autoremove_cmd = [_APTGET, '-y', 'autoremove']
         if dry_run:
             upgrade_cmd.append('--dry-run')
+            autoremove_cmd.append('--dry-run')
         print(f'Upgrading packages...')
+        _run([_APTGET, 'update'])
         _run(upgrade_cmd)
+        _run(autoremove_cmd)
     else:
         print("The node is not idle. Skipping package upgrades.")
 
