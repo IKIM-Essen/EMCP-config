@@ -11,10 +11,12 @@ import shutil
 import sys
 
 THRESHOLD_DEFAULT=0.2
-_STATE_UNDRAIN = 'undrain'
-_STATE_DRAIN = 'drain'
 _STATE_IDLE = 'idle'
+_STATE_DOWN = 'down'
+_STATE_DRAIN = 'drain'
+_STATE_MAINT = 'maint'
 _STATE_RESUME = 'resume'
+_STATE_UNDRAIN = 'undrain'
 _SINFO = '/usr/bin/sinfo'
 _SCONTROL = '/usr/bin/scontrol'
 _SQUEUE = '/usr/bin/squeue'
@@ -160,22 +162,32 @@ def clean_global_dirs(
         print("The node is not idle. Skipping global directories.")
 
 def upgrade_pkgs(dry_run: bool = False) -> None:
-    """Carry out OS package upgrades."""
+    """Carry out OS package upgrades.
+    
+    The operation takes place only if the node is idle and no nodes in the
+    cluster are down.
+    """
     if _get_node_state() in (_STATE_DRAIN, _STATE_IDLE):
-        upgrade_cmd = [_APTGET, '-y', 'dist-upgrade']
-        autoremove_cmd = [_APTGET, '-y', 'autoremove']
-        if dry_run:
-            upgrade_cmd.append('--dry-run')
-            autoremove_cmd.append('--dry-run')
-        print(f'Upgrading packages...')
-        _run([_APTGET, 'update'])
-        _run(upgrade_cmd)
-        _run(autoremove_cmd)
+        if _is_cluster_healthy():
+            upgrade_cmd = [_APTGET, '-y', 'dist-upgrade']
+            autoremove_cmd = [_APTGET, '-y', 'autoremove']
+            if dry_run:
+                upgrade_cmd.append('--dry-run')
+                autoremove_cmd.append('--dry-run')
+            print(f'Upgrading packages...')
+            _run([_APTGET, 'update'])
+            _run(upgrade_cmd)
+            _run(autoremove_cmd)
+        else:
+            print("Some nodes in the cluster are down or in maintenance. Skipping package upgrades.")
     else:
         print("The node is not idle. Skipping package upgrades.")
 
 def undrain_or_reboot(dry_run: bool = False) -> None:
-    """Reboot if needed to complete an upgrade, otherwise undrain."""
+    """Reboot if needed to complete an upgrade, otherwise undrain.
+
+    The operation takes place only if the node is idle.
+    """
     if not dry_run and Path('/run/reboot-required').exists():
         if _get_node_state() in (_STATE_DRAIN, _STATE_IDLE):
             print(f'Rebooting to apply upgrades...')
@@ -231,6 +243,15 @@ def _has_job_in_queue(user: str) -> bool:
         f'--nodelist={_HOSTNAME}',
         f'--user={user}'])
     return sinfo.stdout.strip()
+
+def _is_cluster_healthy() -> bool:
+    """Determine whether the slurm cluster is in such a state that no nodes are down."""
+    sinfo = _run([
+        _SINFO,
+        '--noheader',
+        '--format=%t'])
+    states = sinfo.stdout.splitlines()
+    return (_STATE_DOWN not in states) and (_STATE_MAINT not in states)
 
 def _is_real_dir(path: str) -> bool:
     """Determine whether the specified path points to a directory and not a symlink."""
