@@ -14,6 +14,7 @@ THRESHOLD_DEFAULT=0.2
 _STATE_IDLE = 'idle'
 _STATE_DOWN = 'down'
 _STATE_DRAIN = 'drain'
+_STATE_DRAINING = 'drng'
 _STATE_MAINT = 'maint'
 _STATE_RESUME = 'resume'
 _STATE_UNDRAIN = 'undrain'
@@ -29,7 +30,8 @@ _HOSTNAME = socket.getfqdn().split('.', maxsplit=1)[0]
 def main() -> int:
     """Define the command-line parameters and execute the maintenance logic.
 
-    The unattended maintenance logic consists of the following steps:
+    The unattended maintenance takes place only if the cluster is in a healthy
+    state. It consists of the following steps:
       1. A slurm command to drain the local node is issued in order to prevent
          the node from accepting jobs.
       2  Cache and local storage are cleaned up if needed.
@@ -64,17 +66,42 @@ def main() -> int:
         help="don't actually perform the actions listed in the output")
     args = parser.parse_args()
 
-    drain(dry_run=args.dry_run)
-    cleanup(
-        userdir_roots=args.userdir_root,
-        globaldirs=args.globaldir,
-        threshold=args.threshold,
-        ctime_delta=args.ctime_delta,
-        dry_run=args.dry_run)
-    upgrade_pkgs(dry_run=args.dry_run)
-    undrain_or_reboot(dry_run=args.dry_run)
+    if is_cluster_healthy():
+        drain(dry_run=args.dry_run)
+        cleanup(
+            userdir_roots=args.userdir_root,
+            globaldirs=args.globaldir,
+            threshold=args.threshold,
+            ctime_delta=args.ctime_delta,
+            dry_run=args.dry_run)
+        upgrade_pkgs(dry_run=args.dry_run)
+        undrain_or_reboot(dry_run=args.dry_run)
+    else:
+        print("Some nodes are drained, down or in maintenance. Skipping unattended maintenance.")
 
     return 0
+
+def is_cluster_healthy() -> bool:
+    """Determine whether the slurm cluster in a healthy state.
+
+    The cluster is considered healthy if no nodes are in any of the following
+    states:
+      - drain
+      - draining
+      - down
+      - reservation with the maintenance flag
+    """
+    unhealthy_states = set((
+        _STATE_DRAIN,
+        _STATE_DRAINING,
+        _STATE_DOWN,
+        _STATE_MAINT))
+    sinfo = _run([
+        _SINFO,
+        '--noheader',
+        '--format=%t'])
+    states = set(sinfo.stdout.splitlines())
+    return states.isdisjoint(unhealthy_states)
 
 def drain(dry_run: bool = False) -> None:
     """Issue a drain command via slurm."""
@@ -163,23 +190,19 @@ def clean_global_dirs(
 
 def upgrade_pkgs(dry_run: bool = False) -> None:
     """Carry out OS package upgrades.
-    
-    The operation takes place only if the node is idle and no nodes in the
-    cluster are down.
+
+    The operation takes place only if the node is idle.
     """
     if _get_node_state() in (_STATE_DRAIN, _STATE_IDLE):
-        if _is_cluster_healthy():
-            upgrade_cmd = [_APTGET, '-y', 'dist-upgrade']
-            autoremove_cmd = [_APTGET, '-y', 'autoremove']
-            if dry_run:
-                upgrade_cmd.append('--dry-run')
-                autoremove_cmd.append('--dry-run')
-            print(f'Upgrading packages...')
-            _run([_APTGET, 'update'])
-            _run(upgrade_cmd)
-            _run(autoremove_cmd)
-        else:
-            print("Some nodes in the cluster are down or in maintenance. Skipping package upgrades.")
+        upgrade_cmd = [_APTGET, '-y', 'dist-upgrade']
+        autoremove_cmd = [_APTGET, '-y', 'autoremove']
+        if dry_run:
+            upgrade_cmd.append('--dry-run')
+            autoremove_cmd.append('--dry-run')
+        print(f'Upgrading packages...')
+        _run([_APTGET, 'update'])
+        _run(upgrade_cmd)
+        _run(autoremove_cmd)
     else:
         print("The node is not idle. Skipping package upgrades.")
 
@@ -244,15 +267,6 @@ def _has_job_in_queue(user: str) -> bool:
         f'--user={user}'])
     return sinfo.stdout.strip()
 
-def _is_cluster_healthy() -> bool:
-    """Determine whether the slurm cluster is in such a state that no nodes are down."""
-    sinfo = _run([
-        _SINFO,
-        '--noheader',
-        '--format=%t'])
-    states = sinfo.stdout.splitlines()
-    return (_STATE_DOWN not in states) and (_STATE_MAINT not in states)
-
 def _is_real_dir(path: str) -> bool:
     """Determine whether the specified path points to a directory and not a symlink."""
     path_obj = Path(path)
@@ -264,7 +278,7 @@ def _run(args: Sequence[str], timeout: int = _DURATION_ONE_HOUR) -> subprocess.C
 
 def _rmr(path: str, ctime_delta: int = None, dry_run: bool = False) -> None:
     """Delete the specified file or directory recursively.
-    
+
     Symbolic links are not followed.
 
     ctime_delta can be passed as a number of seconds. If it is specified and the
