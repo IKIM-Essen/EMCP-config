@@ -3,6 +3,11 @@ executor: slurm
 resources:
   # constrain memory so that every job can be submitted to slurm
   mem_mb: 8000
+shared-fs-usage:
+  - persistence
+  - software-deployment
+  - sources
+  - source-cache
 {% endif %}
 software-deployment-method:
   - conda
@@ -10,9 +15,4 @@ software-deployment-method:
 latency-wait: 60
 # enforce using local work directories instead of directly running in NFS
 default-storage-provider: fs
-shared-fs-usage:
-  - persistence
-  - software-deployment
-  - sources
-  - source-cache
 local-storage-prefix: /local/work/$USER/snakemake-scratch
