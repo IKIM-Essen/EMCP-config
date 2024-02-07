@@ -47,6 +47,8 @@
   when: ipaserver_settings_automountmap_search.stdout is search("0 automount maps matched")
 
 - name: Add the automountkey
+  vars:
+    ipaserver_settings_mountopts: "fstype=nfs,rw,noatime,nfsvers=3,{{ 'fsc' if mountmap['cached'] }}"
   community.docker.docker_container_exec:
     container: "{{ ipa_server_container_name }}"
     argv:
@@ -54,7 +56,7 @@
       - automountkey-add
       - default
       - "--key \"*\""
-      - "--info \"fstype=nfs,rw,noatime,nfsvers=3,{{ 'fsc' if mountmap['cached'] }} {{ mountmap['host'] }}:{{ mountmap['sharedir'] }}/{{ mountmap['name'] }}/&\""
+      - "--info \"{{ ipaserver_settings_mountopts }} {{ mountmap['host'] }}:{{ mountmap['sharedir'] }}/{{ mountmap['name'] }}/&\""
       - "auto.{{ mountmap['name'] }}"
     tty: true
   become: true
