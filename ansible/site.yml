@@ -128,12 +128,6 @@
     - nfs_client
 
 
-- hosts: nfs_servers
-  environment: "{{ proxy_env | default({}) }}"
-  roles:
-    - nfs_shares
-    - user_skel
-
 - hosts: dns_roundrobin
   environment: "{{ proxy_env | default({}) }}"
   roles:

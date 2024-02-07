@@ -1,0 +1,11 @@
+---
+- hosts: nfs_server_groupdirs
+  environment: "{{ proxy_env | default({}) }}"
+  roles:
+    - nfs_shares
+
+- hosts: nfs_server_homedirs
+  environment: "{{ proxy_env | default({}) }}"
+  roles:
+    - nfs_shares
+    - user_skel

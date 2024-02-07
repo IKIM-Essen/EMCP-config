@@ -38,13 +38,16 @@
       ansible.builtin.include_tasks: tasks/add-user-bastion.yml
       loop: "{{ hostvars['localhost']['userdata'] | default({}) | dict2items }}"
 
-- hosts: nfs_servers
+- hosts: nfs_server_homedirs
   gather_facts: false
   tasks:
     - name: Create users
       ansible.builtin.include_tasks: tasks/add-user-nfs.yml
       loop: "{{ hostvars['localhost']['userdata'] | default({}) | dict2items }}"
 
+- hosts: nfs_server_groupdirs
+  gather_facts: false
+  tasks:
     - name: Create groups
       ansible.builtin.include_tasks: tasks/add-group-nfs.yml
       loop: "{{ hostvars['localhost']['groupdata'] | default({}) | dict2items }}"

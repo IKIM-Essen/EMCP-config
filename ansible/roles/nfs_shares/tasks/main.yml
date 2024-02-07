@@ -1,5 +1,4 @@
 ---
-
 - name: Ensure nfs share directories are present
   ansible.builtin.file:
     path: "{{ nfs_share_root }}/{{ nfs_shares_item }}"
@@ -28,5 +27,6 @@
 - name: Ensure the presence of the software share
   block:
     - ansible.builtin.include_tasks: software_share.yml
+  when: software_share_root is defined
   tags:
     - nfs_shares
