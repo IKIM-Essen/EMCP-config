@@ -21,6 +21,6 @@ latency-wait: 60
 # enforce using local work directories instead of directly running in NFS
 default-storage-provider: fs
 ?if "SLURM_JOB_ID" in os.environ:
-    local-storage-prefix: /local/work/$USER/$SLURM_JOB_ID/snakemake-scratch
+    local-storage-prefix: /local/work/$USER/slurm-job-$SLURM_JOB_ID/snakemake-scratch
 ?else:
     local-storage-prefix: /local/work/$USER/snakemake-scratch
