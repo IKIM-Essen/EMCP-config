@@ -1,3 +1,8 @@
+__use_yte__: True
+
+__definitions__:
+  - import os
+
 {% if inventory_hostname in groups[slurm_worker_group_name] %}
 executor: slurm
 resources:
@@ -15,4 +20,7 @@ software-deployment-method:
 latency-wait: 60
 # enforce using local work directories instead of directly running in NFS
 default-storage-provider: fs
-local-storage-prefix: /local/work/$USER/snakemake-scratch
+?if "SLURM_JOB_ID" in os.environ:
+    local-storage-prefix: /local/work/$USER/slurm-job-$SLURM_JOB_ID/snakemake-scratch
+?else:
+    local-storage-prefix: /local/work/$USER/snakemake-scratch
