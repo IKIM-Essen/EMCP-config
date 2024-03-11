@@ -1,0 +1,10 @@
+---
+- name: Create local users
+  become: true
+  block:
+    - ansible.builtin.include_tasks: create-local.yml
+      loop: "{{ localadmins }}"
+      loop_control:
+        loop_var: localadmins_item
+  tags:
+    - localadmins

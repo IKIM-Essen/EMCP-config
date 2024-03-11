@@ -1,0 +1,29 @@
+---
+- name: Install the prerequisites for using the "local" parameter in ansible.builtin.user
+  ansible.builtin.apt:
+    name: libuser
+    state: present
+
+- name: Add the user
+  ansible.builtin.user:
+    name: "{{ localadmins_item['name'] }}"
+    comment: "{{ localadmins_item['comment'] | default(omit) }}"
+    shell: "{{ localadmins_item['shell'] | default(default_shell) }}"
+    local: true
+    state: present
+
+- name: Make the user a sudoer
+  ansible.builtin.template:
+    src: sudoer.j2
+    dest: "/etc/sudoers.d/01-user-{{ localadmins_item['name'] }}"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Add the public key(s)
+  ansible.posix.authorized_key:
+    user: "{{ localadmins_item['name'] }}"
+    key: "{{ localadmins_item['authorized_keys'] }}"
+    state: present
+  when: localadmins_item['authorized_keys'] is defined

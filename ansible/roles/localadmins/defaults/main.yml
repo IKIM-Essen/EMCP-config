@@ -1,0 +1,14 @@
+default_shell: /bin/bash
+
+# To create local administrators, define the localadmins dictionary as shown
+# below. The accounts created this way are separate from the centralized
+# accounts created via the dedicated playbook, therefore it's recommended that
+# users pick different usernames if they wish to have both an admin account and
+# a centralized one.
+# localadmins:
+#   - name: alismith
+#     comment: Alice Smith
+#     shell: /bin/bash
+#     authorized_keys: |
+#       first key
+#       second key

@@ -1,5 +1,9 @@
 # User-management playbook
 
+A playbook for managing centralized users in FreeIPA.
+
+The accounts created this way are separate from the local accounts created in the `site.yml` playbook via the `localadmins` role, therefore it's recommended that users pick different usernames if they wish to have both an admin account and a centralized one.
+
 ## Requirements
 Before executing the playbook, change directory to the parent of the `playbooks` directory so that Ansible can locate the required roles.
 
