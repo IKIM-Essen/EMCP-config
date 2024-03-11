@@ -6,16 +6,16 @@
 
 - name: Add the user
   ansible.builtin.user:
-    name: "{{ item['name'] }}"
-    comment: "{{ item['comment'] | default(omit) }}"
-    shell: "{{ item['shell'] | default(default_shell) }}"
+    name: "{{ localadmins_item['name'] }}"
+    comment: "{{ localadmins_item['comment'] | default(omit) }}"
+    shell: "{{ localadmins_item['shell'] | default(default_shell) }}"
     local: true
     state: present
 
 - name: Make the user a sudoer
   ansible.builtin.template:
     src: sudoer.j2
-    dest: "/etc/sudoers.d/01-user-{{ item['name'] }}"
+    dest: "/etc/sudoers.d/01-user-{{ localadmins_item['name'] }}"
     owner: root
     group: root
     mode: "0440"
@@ -23,7 +23,7 @@
 
 - name: Add the public key(s)
   ansible.posix.authorized_key:
-    user: "{{ item['name'] }}"
-    key: "{{ item['authorized_keys'] }}"
+    user: "{{ localadmins_item['name'] }}"
+    key: "{{ localadmins_item['authorized_keys'] }}"
     state: present
-  when: item['authorized_keys'] is defined
+  when: localadmins_item['authorized_keys'] is defined
