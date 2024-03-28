@@ -1,0 +1,46 @@
+---
+- name: Add hbac rules for sudo
+  community.general.ipa_hbacrule:
+    name: "{{ ipaserver_sudorule_item['name'] }}"
+    description: HBAC rule to put the corresponding sudo rule into effect
+    hostgroup: "{{ ipaserver_sudorule_item['hostgroup'] }}"
+    usergroup: "{{ ipaserver_sudorule_item['usergroup'] }}"
+    service: [sudo]
+    ipa_host: "{{ primary_ipaserver }}"
+    ipa_pass: "{{ ipaadmin_password }}"
+    validate_certs: false
+    state: present
+  loop: "{{ ipa_sudo_rules }}"
+  loop_control:
+    loop_var: ipaserver_sudorule_item
+  become: true
+
+- name: Add sudo commands
+  community.general.ipa_sudocmd:
+    sudocmd: "{{ ipaserver_sudorule_item['cmd'] }}"
+    description: "{{ ipaserver_sudorule_item['cmd_description'] }}"
+    ipa_host: "{{ primary_ipaserver }}"
+    ipa_pass: "{{ ipaadmin_password }}"
+    validate_certs: false
+    state: present
+  loop: "{{ ipa_sudo_rules }}"
+  loop_control:
+    loop_var: ipaserver_sudorule_item
+  become: true
+
+- name: Add sudo rules
+  community.general.ipa_sudorule:
+    name: "{{ ipaserver_sudorule_item['name'] }}"
+    description: "{{ ipaserver_sudorule_item['rule_description'] }}"
+    hostgroup: "{{ ipaserver_sudorule_item['hostgroup'] }}"
+    usergroup: "{{ ipaserver_sudorule_item['usergroup'] }}"
+    sudoopt: "{{ ipaserver_sudorule_item['sudoopt'] }}"
+    cmd: ["{{ ipaserver_sudorule_item['cmd'] }}"]
+    ipa_host: "{{ primary_ipaserver }}"
+    ipa_pass: "{{ ipaadmin_password }}"
+    validate_certs: false
+    state: present
+  loop: "{{ ipa_sudo_rules }}"
+  loop_control:
+    loop_var: ipaserver_sudorule_item
+  become: true

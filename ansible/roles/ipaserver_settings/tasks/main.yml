@@ -40,6 +40,14 @@
     - ipa-rbacrules
     - ipa-settings
 
+- name: Include ipa sudoer rule tasks
+  block:
+    - ansible.builtin.include_tasks: create_sudorules.yml
+  run_once: true
+  tags:
+    - ipa-sudorules
+    - ipa-settings
+
 # FIXME: kerberos authentication needed to automatically create the automountmaps
 # - name: include automountmaps tasks
 #   block:
