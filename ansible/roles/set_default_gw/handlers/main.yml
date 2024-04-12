@@ -1,3 +1,0 @@
-- name: apply netplan config
-  ansible.builtin.command: netplan apply
-  become: true

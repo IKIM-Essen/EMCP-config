@@ -1,0 +1,36 @@
+---
+- name: Create a temp directory for bootstrap manifests
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: manifests
+  register: bootstrap_manifests
+  notify: Clean up bootstrap manifests
+
+- name: Create a temp directory for post-install manifests
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: manifests
+  register: postinstall_manifests
+  notify: Clean up post-install manifests
+
+- name: Set the variables expected from upstream roles
+  ansible.builtin.set_fact:
+    manifest_config_file_path: "{{ bootstrap_manifests['path'] }}/"
+    cluster_manifest_config_file_path: "{{ postinstall_manifests['path'] }}/"
+  when:
+    - bootstrap_manifests['path'] is defined
+    - postinstall_manifests['path'] is defined
+
+- name: Populate the manifest directories
+  block:
+    - ansible.builtin.include_tasks: populate-manifest-dir.yml
+      loop:
+        - src: "{{ bootstrap_manifest_template_dir }}"
+          dest: "{{ manifest_config_file_path }}"
+        - src: "{{ postinstall_manifest_template_dir }}"
+          dest: "{{ cluster_manifest_config_file_path }}"
+      loop_control:
+        loop_var: rke2_prep_dir
+  when:
+    - manifest_config_file_path is defined
+    - cluster_manifest_config_file_path is defined

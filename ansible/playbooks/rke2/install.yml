@@ -1,0 +1,30 @@
+---
+# Prepare the hosts.
+- hosts: rke2_cluster
+  environment: "{{ proxy_env | default({}) }}"
+  roles:
+    - ipvs
+    - longhorn_prep
+    - rke2_prep
+
+# Execute the upstream roles.
+- hosts: rke2_servers
+  serial: 1
+  become: true
+  environment: "{{ proxy_env | default({}) }}"
+  roles:
+    - role: rke2_server
+
+- hosts: rke2_agents
+  serial: 3
+  become: true
+  environment: "{{ proxy_env | default({}) }}"
+  roles:
+    - role: rke2_agent
+
+- hosts: rke2_servers
+  gather_facts: false
+  become: true
+  environment: "{{ proxy_env | default({}) }}"
+  roles:
+    - role: cluster_manifest

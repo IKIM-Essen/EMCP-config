@@ -1,0 +1,10 @@
+---
+- hosts: rke2_cluster
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Uninstall RKE2 on the current node
+      ansible.builtin.include_tasks: tasks/rke2-run-uninstall.yml
+      loop:
+        - /usr/bin/rke2-uninstall.sh
+        - /usr/local/bin/rke2-uninstall.sh

@@ -1,0 +1,31 @@
+---
+- name: Configure http proxy variables
+  become: true
+  block:
+    - ansible.builtin.include_tasks: rke2-http-proxy.yml
+  tags:
+    - rke2-prep
+    - rke2-prep-http-proxy
+
+# RKE2 expects a default route to exist, even if not actually valid.
+# See https://github.com/rancher/rke2/issues/1242
+- name: Set the default gateway
+  become: true
+  block:
+    - ansible.builtin.include_tasks: default-gateway.yml
+  when: (ansible_default_ipv4 | length) == 0
+  tags:
+    - rke2-prep
+    - rke2-prep-default-gateway
+
+# Before executing the upstream roles, render the templated manifests out to
+# temporary directories on localhost. The upstream roles then read the rendered
+# manifests and deploy them on the RKE2 cluster.
+- name: Prepare manifests for upstream roles
+  delegate_to: "127.0.0.1"
+  run_once: true
+  block:
+    - ansible.builtin.include_tasks: manifests.yml
+  tags:
+    - rke2-prep
+    - rke2-prep-manifests

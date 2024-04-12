@@ -1,0 +1,6 @@
+---
+- name: Load the ipvs kernel module
+  become: true
+  block:
+    - ansible.builtin.include_tasks: ipvs-load.yml
+  tags: ipvs

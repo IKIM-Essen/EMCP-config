@@ -1,0 +1,14 @@
+# A default gateway is required, even if not used.
+# See https://github.com/rancher/rke2/issues/1242
+main_network: "10.0.0.0"
+default_gw: "10.0.0.1"
+
+# Files in these directories whose name ends in .j2 are interpreted as
+# Kubernetes manifests with Jinja 2 template placeholders. Files ending in .yml
+# or .yaml are interpreted as plain Kubernetes manifests. They are deployed to
+# the RKE2 cluster at specific points in the workflow:
+#  - bootstrap_manifest_template_dir: immediately before starting up the first
+#    RKE2 server;
+#  - postinstall_manifest_template_dir: after all nodes have joined the cluster.
+bootstrap_manifest_template_dir: "{{ inventory_dir }}/../manifests/bootstrap"
+postinstall_manifest_template_dir: "{{ inventory_dir }}/../manifests/cluster"
