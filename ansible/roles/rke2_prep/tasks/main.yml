@@ -1,4 +1,20 @@
 ---
+- name: Disable swap
+  become: true
+  block:
+    - ansible.builtin.include_tasks: disable-swap.yml
+  tags:
+    - rke2-prep
+    - rke2-prep-disable-swap
+
+- name: Tweak kernel parameters
+  become: true
+  block:
+    - ansible.builtin.include_tasks: kernel-params.yml
+  tags:
+    - rke2-prep
+    - rke2-prep-kernel-params
+
 - name: Configure http proxy variables
   become: true
   block:

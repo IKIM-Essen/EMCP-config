@@ -1,5 +1,0 @@
-- name: reload multipathd
-  become: true
-  ansible.builtin.systemd:
-    name: multipathd
-    state: reloaded

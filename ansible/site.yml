@@ -136,15 +136,6 @@
   roles:
     - ssh_hostkey
 
-- hosts: rke_k8s_cluster
-  gather_facts: true
-  roles:
-    - set_default_gw
-    - rke2
-    - k8s_setup_longhorn
-    - k8s_setup_traefik
-    - k8s_setup_monitoring
-
 - hosts: server, infra, origin
   become: true
   gather_facts: true
