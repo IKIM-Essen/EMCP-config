@@ -1,17 +1,7 @@
 ---
-- hosts: primary_rke_server
-  environment: "{{ proxy_env | default({}) }}"
-  roles:
-    - k8s_mariadb
-    - k8s_slurm_mariadb
-
 - hosts: slurm
   environment: "{{ proxy_env | default({}) }}"
   roles:
     - role: munge
-
-- hosts: slurm, primary_rke_server
-  environment: "{{ proxy_env | default({}) }}"
-  roles:
     - role: slurm_install
       slurm_upgrade: false

@@ -3,7 +3,6 @@ slurm_controller_group_name: slurm_controller
 slurm_worker_group_name: slurm_worker  # includes compute and user-facing nodes
 slurm_compute_group_name: slurm_compute
 slurm_dbd_group_name: slurm_database
-rke2_primary_server_group_name: primary_rke_server
 
 # Upgrade mode: if disabled, the daemons are restarted as needed if a
 # configuration change is detected; if enabled, the daemons are stopped
@@ -20,7 +19,6 @@ slurm_worker_debs_url: "https://github.com/IKIM-Essen/EMCP-slurm/releases/downlo
 slurm_cluster_name: slurmcluster
 
 # Value of StateSaveLocation in the configuration file.
-# It should match the variable of the same name in the k8s_slurmctld role.
 slurmctld_state_save_location: /var/spool/slurmctld
 
 # Log directory

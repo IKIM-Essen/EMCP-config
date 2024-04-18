@@ -1,5 +1,0 @@
-- name: Include mariadb configuration tasks
-  block:
-    - ansible.builtin.include_tasks: mariadb.yml
-  tags:
-    - mariadb

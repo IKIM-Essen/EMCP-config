@@ -1,6 +1,0 @@
-- name: Include slurm-mariadb configuration tasks
-  block:
-    - ansible.builtin.include_tasks: configure_mariadb.yml
-  tags:
-    - slurm
-    - slurm-mariadb
