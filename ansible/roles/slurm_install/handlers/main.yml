@@ -10,28 +10,28 @@
   community.general.supervisorctl:
     name: slurmctld
     state: stopped
-  when: not slurm_upgrade
+  when: not slurmd_upgrade
 
 - name: restart slurmdbd
   become: true
   community.general.supervisorctl:
     name: slurmdbd
     state: restarted
-  when: not slurm_upgrade
+  when: not slurmd_upgrade
 
 - name: restart slurmd
   become: true
   ansible.builtin.systemd:
     name: slurmd
     state: restarted
-  when: not slurm_upgrade
+  when: not slurmd_upgrade
 
 - name: start slurmctld
   become: true
   community.general.supervisorctl:
     name: slurmctld
     state: started
-  when: not slurm_upgrade
+  when: not slurmd_upgrade
 
 - name: restart cleanup timer
   become: true

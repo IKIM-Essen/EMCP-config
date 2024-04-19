@@ -4,6 +4,9 @@ vault.yml
 # Ansible Vault password file
 vault-pass
 
+# Upstream roles and playbooks
+/ansible/deps/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

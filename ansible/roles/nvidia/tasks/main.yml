@@ -13,7 +13,7 @@
   block:
     - ansible.builtin.include_tasks: gpu_operator.yml
   when:
-    - groups['rke_k8s_cluster'] | map('extract', hostvars, ['ansible_local', 'gpu', 'count']) | list | max > 0
+    - groups['rke2_cluster'] | map('extract', hostvars, ['ansible_local', 'gpu', 'count']) | list | max > 0
     - inventory_hostname in groups[rke2_servers_group_name]
   run_once: true
   tags:

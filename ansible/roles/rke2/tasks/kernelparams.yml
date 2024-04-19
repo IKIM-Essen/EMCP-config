@@ -1,9 +1,0 @@
-- name: Tweak kernel parameters with sysctl
-  ansible.posix.sysctl:
-    name: "{{ rke2_item['name'] }}"
-    value: "{{ rke2_item['value'] }}"
-    state: present
-  loop: "{{ rke2_sysctl }}"
-  loop_control:
-    loop_var: rke2_item
-  become: true

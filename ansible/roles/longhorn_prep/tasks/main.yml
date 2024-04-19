@@ -1,0 +1,7 @@
+---
+# See https://longhorn.io/kb/troubleshooting-volume-with-multipath/
+- name: Disable multipath for longhorn devices
+  become: true
+  block:
+    - ansible.builtin.include_tasks: multipath-disallow.yml
+  tags: longhorn-prep

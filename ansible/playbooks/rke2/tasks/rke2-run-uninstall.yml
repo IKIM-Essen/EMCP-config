@@ -1,0 +1,16 @@
+---
+- name: Check whether the removal script exists
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: rke2_uninstall_script
+
+- name: Execute the script
+  ansible.builtin.command: "{{ item }}"
+  changed_when: true
+  when: rke2_uninstall_script['stat']['exists']
+
+- name: Verify that the script doesn't exist anymore
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: rke2_uninstall_script
+  failed_when: rke2_uninstall_script['stat']['exists']

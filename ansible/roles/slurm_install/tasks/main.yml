@@ -8,7 +8,7 @@
       when: inventory_hostname in groups[slurm_worker_group_name]
     - ansible.builtin.include_tasks: slurm_dbd_stop.yml
       when: inventory_hostname in groups[slurm_dbd_group_name]
-  when: slurm_upgrade
+  when: slurmd_upgrade
   tags:
     - slurm
     - slurm-dbd
@@ -18,8 +18,6 @@
 - name: Deploy the database node
   become: true
   block:
-    - ansible.builtin.include_tasks: slurm_dbd_install.yml
-      when: inventory_hostname in groups[rke2_primary_server_group_name]
     - ansible.builtin.include_tasks: slurm_dbd_launch.yml
       when: inventory_hostname in groups[slurm_dbd_group_name]
   tags:
@@ -39,8 +37,6 @@
 - name: Deploy the controller node
   become: true
   block:
-    - ansible.builtin.include_tasks: slurm_controller_install.yml
-      when: inventory_hostname in groups[rke2_primary_server_group_name]
     - ansible.builtin.include_tasks: slurm_controller_launch.yml
       when: inventory_hostname in groups[slurm_controller_group_name]
   tags:

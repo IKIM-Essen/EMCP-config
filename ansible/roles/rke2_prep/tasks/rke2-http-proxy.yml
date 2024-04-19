@@ -1,0 +1,16 @@
+---
+- name: Write the proxy settings to the rke2 server configuration file
+  ansible.builtin.template:
+    src: rke2.env.j2
+    dest: /etc/default/rke2-server
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Write the proxy settings to the rke2 agent configuration file
+  ansible.builtin.template:
+    src: rke2.env.j2
+    dest: /etc/default/rke2-agent
+    mode: "0644"
+    owner: root
+    group: root

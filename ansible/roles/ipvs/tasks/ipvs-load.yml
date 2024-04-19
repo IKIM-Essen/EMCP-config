@@ -1,0 +1,6 @@
+---
+- name: Load the ipvs kernel module
+  community.general.modprobe:
+    name: ip_vs
+    persistent: present
+    state: present

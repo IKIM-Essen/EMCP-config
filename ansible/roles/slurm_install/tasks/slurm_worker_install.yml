@@ -3,7 +3,7 @@
   ansible.builtin.apt:
     name: "*slurm*"
     state: absent
-  when: slurm_upgrade
+  when: slurmd_upgrade
 
 - name: Install the worker daemon and client tools
   vars:

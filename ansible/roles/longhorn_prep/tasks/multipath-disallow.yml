@@ -1,0 +1,17 @@
+---
+- name: Create the configuration directory
+  ansible.builtin.file:
+    path: /etc/multipath/conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Add the configuration file
+  ansible.builtin.template:
+    src: 01_longhorn.conf.j2
+    dest: /etc/multipath/conf.d/01_longhorn.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload multipathd

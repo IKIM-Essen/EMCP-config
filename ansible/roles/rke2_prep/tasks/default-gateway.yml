@@ -1,0 +1,19 @@
+---
+- name: Loop through the network interfaces to find the current main one
+  ansible.builtin.set_fact:
+    set_default_gw_main_interface: "{{ rke2_prep_nic }}"
+  loop: "{{ ansible_interfaces }}"
+  loop_control:
+    loop_var: rke2_prep_nic
+  when:
+    - lookup('vars', 'ansible_' + rke2_prep_nic, default='')['ipv4']['network'] is defined
+    - lookup('vars', 'ansible_' + rke2_prep_nic)['ipv4']['network'] == main_network
+
+- name: Write netplan default gw config
+  ansible.builtin.template:
+    src: 60-default-gw.yml.j2
+    dest: /etc/netplan/60-default-gw.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: apply netplan config
