@@ -8,7 +8,7 @@
       when: inventory_hostname in groups[slurm_worker_group_name]
     - ansible.builtin.include_tasks: slurm_dbd_stop.yml
       when: inventory_hostname in groups[slurm_dbd_group_name]
-  when: slurm_upgrade
+  when: slurmd_upgrade
   tags:
     - slurm
     - slurm-dbd

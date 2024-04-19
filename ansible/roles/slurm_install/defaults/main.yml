@@ -7,10 +7,17 @@ slurm_dbd_group_name: slurm_database
 # Upgrade mode: if disabled, the daemons are restarted as needed if a
 # configuration change is detected; if enabled, the daemons are stopped
 # unconditionally, then the the regular deployment takes place and finally they
-# are started again. By keeping the daemons stopped for the duration of the
-# deployment, the risk of leaving the cluster in an inconsistent state due to
-# an error is reduced.
-slurm_upgrade: false
+# are started again.
+# By keeping the daemons stopped for the duration of the deployment, the risk of
+# leaving the cluster in an inconsistent state due to issues during an upgrade
+# is reduced.
+# In order to actually carry out an upgrade, the slurm_worker_debs_* variables
+# must point to newer deb packages. Note that this playbook only supports
+# installing slurmd packages; the other daemons, namely slurmctld and slurmdbd,
+# can be upgraded by deploying new container images using the RKE2 playbook.
+# The slurmctld and slurmdbd nodes should be upgraded before the slurmd nodes.
+# See https://slurm.schedmd.com/quickstart_admin.html#upgrade
+slurmd_upgrade: false
 
 # URL of the archive containing the deb packages
 slurm_worker_debs_url: "https://github.com/IKIM-Essen/EMCP-slurm/releases/download/{{ slurm_worker_debs_tag }}/{{ slurm_worker_debs_archive }}"

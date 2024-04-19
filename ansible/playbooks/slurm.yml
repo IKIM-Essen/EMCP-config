@@ -4,4 +4,4 @@
   roles:
     - role: munge
     - role: slurm_install
-      slurm_upgrade: false
+      slurmd_upgrade: false
