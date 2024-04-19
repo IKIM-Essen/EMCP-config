@@ -1,13 +1,13 @@
 ---
 - name: Loop through the network interfaces to find the current main one
   ansible.builtin.set_fact:
-    set_default_gw_main_interface: "{{ set_default_gw_item }}"
+    set_default_gw_main_interface: "{{ rke2_prep_nic }}"
   loop: "{{ ansible_interfaces }}"
   loop_control:
-    loop_var: set_default_gw_item
+    loop_var: rke2_prep_nic
   when:
-    - lookup('vars', 'ansible_' + set_default_gw_item, default='')['ipv4']['network'] is defined
-    - lookup('vars', 'ansible_' + set_default_gw_item)['ipv4']['network'] == main_network
+    - lookup('vars', 'ansible_' + rke2_prep_nic, default='')['ipv4']['network'] is defined
+    - lookup('vars', 'ansible_' + rke2_prep_nic)['ipv4']['network'] == main_network
 
 - name: Write netplan default gw config
   ansible.builtin.template:
