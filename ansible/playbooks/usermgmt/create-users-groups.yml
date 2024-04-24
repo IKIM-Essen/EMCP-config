@@ -7,12 +7,12 @@
   tasks:
     - name: Load users
       ansible.builtin.include_tasks: tasks/load-user.yml
-      loop: "{{ lookup('fileglob', userglob) | split(',') }}"
+      loop: "{{ lookup('fileglob', userglob, wantlist=True) }}"
       when: userglob is defined
 
     - name: Load groups
       ansible.builtin.include_tasks: tasks/load-group.yml
-      loop: "{{ lookup('fileglob', groupglob) | split(',') }}"
+      loop: "{{ lookup('fileglob', groupglob, wantlist=True) }}"
       when: groupglob is defined
 
 - hosts: managed_cluster
