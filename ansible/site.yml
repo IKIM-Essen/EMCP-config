@@ -142,3 +142,10 @@
   environment: "{{ proxy_env | default({}) }}"
   roles:
     - telegraf_systemd
+
+- hosts: admin_2fa
+  become: true
+  gather_facts: true
+  environment: "{{ proxy_env | default({}) }}"
+  roles:
+    - yubi_admin

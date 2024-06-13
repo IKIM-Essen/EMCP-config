@@ -1,0 +1,27 @@
+- name: Make sure /etc/apt/keyrings is present on target machine
+  ansible.builtin.file:
+    path: "{{ yubico_apt_repo_key | dirname }}"
+    state: directory
+    mode: '0755'
+
+- name: Get yubico apt repo key
+  ansible.builtin.get_url:
+    url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3653e21064b19d134466702e43d5c49532cba1a9"
+    dest: "{{ yubico_apt_repo_key }}"
+    mode: 0644
+    owner: root
+    group: root
+  environment: "{{ proxy_env | default('') }}"
+
+- name: Install yubico apt repo
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by={{ yubico_apt_repo_key }}] \
+      https://ppa.launchpadcontent.net/yubico/stable/{{ ansible_lsb.id | lower }} {{ ansible_lsb.codename }} main"
+    filename: influxdata-archive_compat
+    state: present
+
+- name: Install yubico-pam module
+  ansible.builtin.apt:
+    name: libpam-yubico
+    update_cache: true
+    state: present
