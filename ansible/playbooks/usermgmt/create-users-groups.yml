@@ -15,7 +15,8 @@
       loop: "{{ lookup('fileglob', groupglob, wantlist=True) }}"
       when: groupglob is defined
 
-- hosts: managed_cluster
+# FIXME: We run this locally via ipa_host_override for now. Needs cleanup.
+- hosts: {{ ipa_host_override | default('managed_cluster') }}
   run_once: true
   gather_facts: false
   vars:
