@@ -16,7 +16,7 @@
       when: groupglob is defined
 
 # FIXME: We run this locally via ipa_host_override for now. Needs cleanup.
-- hosts: {{ ipa_host_override | default('managed_cluster') }}
+- hosts: "{{ ipa_host_override | default('managed_cluster') }}"
   run_once: true
   gather_facts: false
   vars:
