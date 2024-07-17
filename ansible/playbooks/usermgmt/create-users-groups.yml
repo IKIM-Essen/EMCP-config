@@ -14,6 +14,7 @@
       ansible.builtin.include_tasks: tasks/load-group.yml
       loop: "{{ lookup('fileglob', groupglob, wantlist=True) }}"
       when: groupglob is defined
+  tags: usermgmt-load
 
 # FIXME: We run this locally via ipa_host_override for now. Needs cleanup.
 - hosts: "{{ ipa_host_override | default('managed_cluster') }}"
@@ -31,6 +32,7 @@
     - name: Create groups
       ansible.builtin.include_tasks: tasks/add-group-ipa.yml
       loop: "{{ hostvars['localhost']['groupdata'] | default({}) | dict2items }}"
+  tags: usermgmt-ipa
 
 - hosts: bastion_hosts
   gather_facts: false
@@ -38,6 +40,7 @@
     - name: Create users
       ansible.builtin.include_tasks: tasks/add-user-bastion.yml
       loop: "{{ hostvars['localhost']['userdata'] | default({}) | dict2items }}"
+  tags: usermgmt-bastion
 
 - hosts: nfs_server_homedirs
   gather_facts: false
@@ -45,6 +48,7 @@
     - name: Create users
       ansible.builtin.include_tasks: tasks/add-user-nfs.yml
       loop: "{{ hostvars['localhost']['userdata'] | default({}) | dict2items }}"
+  tags: usermgmt-nfs
 
 - hosts: nfs_server_groupdirs
   gather_facts: false
@@ -52,6 +56,7 @@
     - name: Create groups
       ansible.builtin.include_tasks: tasks/add-group-nfs.yml
       loop: "{{ hostvars['localhost']['groupdata'] | default({}) | dict2items }}"
+  tags: usermgmt-nfs
 
 - hosts: slurm_user_facing
   run_once: true
@@ -62,3 +67,4 @@
     - name: Create users
       ansible.builtin.include_tasks: tasks/add-user-slurm.yml
       loop: "{{ hostvars['localhost']['userdata'] | default({}) | dict2items }}"
+  tags: usermgmt-slurm
