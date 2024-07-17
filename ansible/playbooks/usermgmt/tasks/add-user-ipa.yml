@@ -12,7 +12,7 @@
     # Ugly workaround for yet-to-be-investigated upstream(?) issue that breaks
     # execution if there are spaces in key file comments.
     # -> Take first key and use first 3 fields only, i.e., omit spaces in comment.
-    sshpubkey: "{{ [item['value']['ssh_public_key'][0].split()[:3] | join(' ')] if item['value']['ssh_public_key'] | default([]) else [] }}"
+    sshpubkey: "{{ [item['value']['ssh_public_key'][0].split()[:3] | join(' ')] if item['value']['ssh_public_key'] is defined and item['value']['ssh_public_key'][0] is defined else [] }}"
     # sshpubkey: "{{ item['value']['ssh_public_key'] | default([]) }}"
     validate_certs: false
     state: "{{ item['value']['desired_state'] | default('present') }}"
