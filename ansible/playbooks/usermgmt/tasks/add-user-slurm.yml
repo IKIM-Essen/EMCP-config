@@ -15,9 +15,9 @@
     - not (sacctmgr_result['stdout'] | regex_search('Nothing new added'))
 
 - name: Modify the Slurm Admin level of the user
-  become: true
   ansible.builtin.command:
     argv:
+      - sudo
       - sacctmgr
       - --immediate
       - modify
