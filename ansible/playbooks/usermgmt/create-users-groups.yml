@@ -58,7 +58,7 @@
       loop: "{{ hostvars['localhost']['groupdata'] | default({}) | dict2items }}"
   tags: usermgmt-nfs
 
-- hosts: slurm_user_facing
+- hosts: "{{ slurm_user_facing_override | default('slurm_user_facing') }}"
   run_once: true
   gather_facts: false
   vars:
