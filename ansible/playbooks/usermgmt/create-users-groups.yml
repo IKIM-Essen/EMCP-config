@@ -68,5 +68,3 @@
       ansible.builtin.include_tasks: tasks/add-user-slurm.yml
       loop: "{{ hostvars['localhost']['userdata'] | default({}) | dict2items }}"
   tags: usermgmt-slurm
-  # Disable separate Slurm account management; should not be needed.
-  when: 0 == 1
