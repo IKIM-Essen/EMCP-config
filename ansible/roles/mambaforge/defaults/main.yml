@@ -1,5 +1,6 @@
-mambaforge_release: "23.3.1-1"
+mambaforge_release: "24.7.1-2"
 mamba_home: /opt/mambaforge
+
 
 # Define mambaforge_user_env_root to override the default environment locations.
 # Each user will have "{{ mambaforge_user_env_root }}/$USER" as the default
