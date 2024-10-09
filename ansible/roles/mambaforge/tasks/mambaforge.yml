@@ -17,28 +17,24 @@
   failed_when: false
   register: conda_version_cmd
 
-- name: Wipe the existing installation if it differs from the target version
+# If this task doesn't run, it leaves mambaforge_same_as_target undefined,
+# which means that conda was not detected in the installation directory.
+- name: Determine whether the existing installation is already at the target version
+  ansible.builtin.set_fact:
+    mambaforge_same_as_target: "{{ conda_version_cmd['stdout'] == 'conda ' ~ mambaforge_conda_version }}"
+  when:
+    - conda_version_cmd['rc'] is defined
+    - conda_version_cmd['rc'] == 0
+    - conda_version_cmd['stdout'] is defined
+    - conda_version_cmd['stdout'] != ''
+
+- name: Wipe the existing installation
   ansible.builtin.file:
     path: "{{ mamba_home }}"
     state: absent
   when:
-    - conda_version_cmd['rc'] is defined
-    - conda_version_cmd['stdout'] is defined
-    - (conda_version_cmd['rc'] == 0) and (conda_version_cmd['stdout'] != 'conda ' ~ mambaforge_conda_version)
-
-- name: Verify that the installation directory doesn't exist
-  ansible.builtin.stat:
-    path: "{{ mamba_home }}"
-  register: mambaforge_home_check
-  failed_when: mambaforge_home_check['stat']['exists']
-
-- name: Create the installation directory
-  ansible.builtin.file:
-    path: "{{ mamba_home }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
+    - mambaforge_same_as_target is defined
+    - not mambaforge_same_as_target
 
 - name: Execute the installation script
   ansible.builtin.command:
@@ -48,6 +44,7 @@
       - -p
       - "{{ mamba_home }}"
   changed_when: true
+  when: (mambaforge_same_as_target is not defined) or (not mambaforge_same_as_target)
 
 - name: Create the custom environment root
   ansible.builtin.file:
