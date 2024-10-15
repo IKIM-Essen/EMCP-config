@@ -1,13 +1,4 @@
 ---
-- name: Download the installation script
-  ansible.builtin.get_url:
-    url: "{{ mambaforge_url }}"
-    dest: /tmp/mambaforge.sh
-    owner: root
-    group: root
-    mode: "0755"
-    checksum: "sha256:{{ lookup('url', mambaforge_digest_url) | regex_search('[0-9a-f]{64}') }}"
-
 - name: Check the installed version
   ansible.builtin.command:
     argv:
@@ -27,6 +18,16 @@
     - conda_version_cmd['rc'] == 0
     - conda_version_cmd['stdout'] is defined
     - conda_version_cmd['stdout'] != ''
+
+- name: Download the installation script
+  ansible.builtin.get_url:
+    url: "{{ mambaforge_url }}"
+    dest: /tmp/mambaforge.sh
+    owner: root
+    group: root
+    mode: "0755"
+    checksum: "sha256:{{ lookup('url', mambaforge_digest_url) | regex_search('[0-9a-f]{64}') }}"
+  when: (mambaforge_same_as_target is not defined) or (not mambaforge_same_as_target)
 
 - name: Wipe the existing installation
   ansible.builtin.file:
