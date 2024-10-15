@@ -47,6 +47,18 @@
   changed_when: true
   when: (mambaforge_same_as_target is not defined) or (not mambaforge_same_as_target)
 
+- name: Remove temporary installer files
+  ansible.builtin.file:
+    path: "{{ mambaforge_installer_file }}"
+    state: absent
+  loop_control:
+    loop_var: mambaforge_installer_file
+  loop:
+    - /tmp/mambaforge.sh
+    # TODO: report/fix upstream at conda/constructor
+    - "{{ mamba_home }}/_conda"
+    - "{{ mamba_home }}/=2.17"
+
 - name: Create the custom environment root
   ansible.builtin.file:
     path: "{{ mambaforge_user_env_root }}"
