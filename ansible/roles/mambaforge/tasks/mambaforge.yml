@@ -1,21 +1,4 @@
 ---
-- name: Create the installation directory
-  ansible.builtin.file:
-    path: "{{ mamba_home }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
-
-- name: Download the installation script
-  ansible.builtin.get_url:
-    url: "{{ mambaforge_url }}"
-    dest: /tmp/mambaforge.sh
-    owner: root
-    group: root
-    mode: "0755"
-    checksum: "sha256:{{ lookup('url', mambaforge_digest_url) | regex_search('[0-9a-f]{64}') }}"
-
 - name: Check the installed version
   ansible.builtin.command:
     argv:
@@ -25,19 +8,56 @@
   failed_when: false
   register: conda_version_cmd
 
+# If this task doesn't run, it leaves mambaforge_same_as_target undefined,
+# which means that conda was not detected in the installation directory.
+- name: Determine whether the existing installation is already at the target version
+  ansible.builtin.set_fact:
+    mambaforge_same_as_target: "{{ conda_version_cmd['stdout'] == 'conda ' ~ mambaforge_conda_version }}"
+  when:
+    - conda_version_cmd['rc'] is defined
+    - conda_version_cmd['rc'] == 0
+    - conda_version_cmd['stdout'] is defined
+    - conda_version_cmd['stdout'] != ''
+
+- name: Download the installation script
+  ansible.builtin.get_url:
+    url: "{{ mambaforge_url }}"
+    dest: /tmp/mambaforge.sh
+    owner: root
+    group: root
+    mode: "0755"
+    checksum: "sha256:{{ lookup('url', mambaforge_digest_url) | regex_search('[0-9a-f]{64}') }}"
+  when: (mambaforge_same_as_target is not defined) or (not mambaforge_same_as_target)
+
+- name: Wipe the existing installation
+  ansible.builtin.file:
+    path: "{{ mamba_home }}"
+    state: absent
+  when:
+    - mambaforge_same_as_target is defined
+    - not mambaforge_same_as_target
+
 - name: Execute the installation script
   ansible.builtin.command:
     argv:
       - /tmp/mambaforge.sh
       - -b
-      - -u
       - -p
       - "{{ mamba_home }}"
   changed_when: true
-  when:
-    - conda_version_cmd['rc'] is defined
-    - conda_version_cmd['stdout'] is defined
-    - (conda_version_cmd['rc'] != 0) or (conda_version_cmd['stdout'] != 'conda ' ~ mambaforge_conda_version)
+  when: (mambaforge_same_as_target is not defined) or (not mambaforge_same_as_target)
+
+- name: Remove temporary installer files
+  ansible.builtin.file:
+    path: "{{ mambaforge_installer_file }}"
+    state: absent
+  loop_control:
+    loop_var: mambaforge_installer_file
+  loop:
+    - /tmp/mambaforge.sh
+    # TODO: report/fix upstream at conda/constructor
+    - "{{ mamba_home }}/_conda"
+    - "{{ mamba_home }}/=2.17"
 
 - name: Create the custom environment root
   ansible.builtin.file:
