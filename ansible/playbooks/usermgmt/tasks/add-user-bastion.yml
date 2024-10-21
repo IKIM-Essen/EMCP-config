@@ -23,7 +23,9 @@
       - sudo
       - /root/bin/ikimuseradd.sh
       - "{{ usermgmt_tempfile['path'] }}"
-    creates: "/home/{{ item['value']['username'] }}"
+    # As of 2024-10, ikimuseradd.sh also handles adding new ssh keys for
+    # existing users, so always run it, even if /home/user already exists.
+    # creates: "/home/{{ item['value']['username'] }}"
   when: usermgmt_tempfile['path'] is defined
 
 - name: Delete the temp file
