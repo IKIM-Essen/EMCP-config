@@ -1,6 +1,7 @@
 {% for user in user_list %}
 {% if user['ssh_public_key'] is defined and user['ssh_public_key'][0] is defined %}
-{# The script ikimuseradd.sh supports only one ssh key #}
-{{ user['username'] }} {{ user['ssh_public_key'][0] }}
+{% for key in user['ssh_public_key'] %}
+{{ user['username'] }} {{ key | trim | replace("\n", " ") }}
+{% endfor %}
 {% endif %}
 {% endfor %}
