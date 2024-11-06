@@ -3,3 +3,4 @@
   ansible.builtin.apt:
     name: freeipa-client
     state: present
+    install_recommends: false
