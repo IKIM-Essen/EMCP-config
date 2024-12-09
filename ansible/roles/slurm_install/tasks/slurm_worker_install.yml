@@ -10,6 +10,7 @@
     custom_pkgs_archive: "{{ slurm_worker_debs_url }}"
     custom_pkgs_debs:
       - "{{ slurm_worker_debs_dirname }}/slurm-wlm-basic-plugins_{{ slurm_worker_debs_tag }}_amd64.deb"
+      - "{{ slurm_worker_debs_dirname }}/slurm-wlm-nvml-plugin_{{ slurm_worker_debs_tag }}_amd64.deb"
       - "{{ slurm_worker_debs_dirname }}/slurm-client_{{ slurm_worker_debs_tag }}_amd64.deb"
       - "{{ slurm_worker_debs_dirname }}/slurmd_{{ slurm_worker_debs_tag }}_amd64.deb"
   ansible.builtin.include_role:

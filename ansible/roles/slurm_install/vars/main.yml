@@ -19,7 +19,7 @@ slurmctld_config_dir: /etc/slurm
 slurmd_config_dir: /etc/slurm
 
 # Information about the Ubuntu package archive.
-slurm_worker_debs_tag: "21.08.5-2ubuntu1"
+slurm_worker_debs_tag: "23.02.3-2ubuntu1"
 slurm_worker_debs_dirname: "slurm-{{ slurm_worker_debs_tag }}-ubuntu{{ ansible_distribution_version }}-debs"
 slurm_worker_debs_archive: "{{ slurm_worker_debs_dirname }}.tar.gz"
 
