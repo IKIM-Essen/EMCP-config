@@ -5,7 +5,7 @@
       - sudo
       - /opt/user_scripts/create_new_project.sh
       - "{{ item['value']['groupname'] }}"
-    creates: "/dpool/share/projects/{{ item['value']['groupname'] }}"
+    creates: "{{ nfs_share_root }}/projects/{{ item['value']['groupname'] }}"
   when:
     - item['value']['is_project'] is defined
     - item['value']['is_project']
@@ -16,7 +16,7 @@
       - sudo
       - /opt/user_scripts/create_new_group.sh
       - "{{ item['value']['groupname'] }}"
-    creates: "/dpool/share/groups/{{ item['value']['groupname'] }}"
+    creates: "{{ nfs_share_root }}/groups/{{ item['value']['groupname'] }}"
   when:
     - item['value']['is_group'] is defined
     - item['value']['is_group']
