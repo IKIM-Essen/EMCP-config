@@ -5,4 +5,4 @@
       - sudo
       - /opt/user_scripts/create_user_home.sh
       - "{{ item['value']['username'] }}"
-    creates: "/dpool_ssd/homes/{{ item['value']['username'] }}"
+    creates: "{{ nfs_share_root }}/homes/{{ item['value']['username'] }}"
