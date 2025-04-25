@@ -2,5 +2,6 @@
 - name: Install "emcp-tools" Rust package
   community.general.cargo:
     name: emcp-tools
+    version: "0.1.1"
 
 # TODO add a cron job to run 'emcp-tools cleanup-stale-data --dir /local/work --age 7d'
