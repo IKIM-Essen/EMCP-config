@@ -16,14 +16,15 @@
     mode: "0600"
   when: usermgmt_tempfile['path'] is defined
 
-- name: Create the user on the bastion host
+- name: delete the user on the bastion host
   ansible.builtin.command:
     argv:
       - sudo
       - /root/bin/ikimuserdel.sh
       - "{{ usermgmt_tempfile['path'] }}"
-    creates: "/home/{{ item['value']['username'] }}"
-  when: usermgmt_tempfile['path'] is defined
+  when: "{{ item['value']['state'] }}" != enabled
+
+# when state is not enabled or expired data is not in the past
 
 - name: Delete the temp file
   ansible.builtin.file:

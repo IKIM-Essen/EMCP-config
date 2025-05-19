@@ -14,3 +14,10 @@
       - "{{ slurm_worker_debs_dirname }}/slurmd_{{ slurm_worker_debs_tag }}_amd64.deb"
   ansible.builtin.include_role:
     name: custom_pkgs
+
+- name: Install a crontab entry to clean up files not accessed in 7 days in /local/work
+  ansible.builtin.cron:
+    name: "clean up local drive"
+    minute: "7"
+    hour: "2"
+    job: "find /local/work -type f -atime +7 -delete"
