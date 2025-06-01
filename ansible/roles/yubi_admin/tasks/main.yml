@@ -1,0 +1,17 @@
+- name: Install 2FA components
+  become: true
+  block:
+    - ansible.builtin.include_tasks: yubi-install.yml
+  tags:
+    - 2fa
+    - admin-yubi
+    - yubi-install
+
+- name: Configure 2FA components
+  become: true
+  block:
+    - ansible.builtin.include_tasks: yubi-config.yml
+  tags:
+    - 2fa
+    - admin-yubi
+    - yubi-config
