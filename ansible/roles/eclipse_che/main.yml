@@ -1,0 +1,29 @@
+- name: Download the chectl installer
+  ansible.builtin.get_url:
+    url: https://www.eclipse.org/che/chectl
+    dest: /tmp/chectl-install.sh
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install chectl to /usr/local/bin/chectl
+  ansible.builtin.command: /tmp/chectl-install.sh
+
+# Based on the instructions at https://www.eclipse.org/che/docs/che-7/installation-guide/installing-che-on-kind/
+# TODO: Set up Dex as OIDC provider.
+- name: Deploy eclipse che
+  ansible.builtin.command:
+    argv:
+      - chectl
+      - server:deploy
+      - --installer
+      - operator
+      - --platform
+      - k8s
+      - --domain
+      - "{{ k8s_cluster_domain }}"
+      - --telemetry
+      - "off"
+      - --batch
+  async: 3600
+  poll: 10
