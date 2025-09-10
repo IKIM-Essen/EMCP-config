@@ -1,3 +1,4 @@
+---
 - name: Add the munge key
   ansible.builtin.template:
     src: munge.key.j2

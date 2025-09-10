@@ -1,5 +1,4 @@
 ---
-
 - name: Create nfs service on ipa server
   community.general.ipa_service:
     krbcanonicalname: "nfs/{{ primary_ipaserver }}@{{ ipaserver_realm }}"

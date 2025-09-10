@@ -1,3 +1,4 @@
+---
 - name: Create the profile directory
   ansible.builtin.file:
     path: "/etc/xdg/snakemake/{{ snakemake_profile_name }}"

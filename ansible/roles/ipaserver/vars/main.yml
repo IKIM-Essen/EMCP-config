@@ -1,3 +1,4 @@
+---
 server_options_filename: ipa-server-install-options
 server_options_path: "{{ ipa_storage }}/{{ server_options_filename }}"
 server_service_name: freeipa-server

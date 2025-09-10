@@ -1,3 +1,4 @@
+---
 ipa_automounts_enabled: false
 
 cachefilesd_enabled: false
@@ -12,7 +13,6 @@ cachefilesd_directory: /var/cache/fscache
 #   - name: frun
 #     value: 20%
 cachefilesd_options: []
-
 autofs_root: /mnt
 
 # List of mountpoints with a local path relative to {{ autofs_root }}

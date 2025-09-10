@@ -1,5 +1,4 @@
 ---
-
 # ensure that the home directory path is set to /homes for all users
 # reason: the shared home directory from s1 is mounted at /homes
 - name: Create nfs service on ipa server

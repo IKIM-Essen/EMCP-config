@@ -1,5 +1,4 @@
 ---
-
 - name: Partition the 2nd drive
   parted:
     device: /dev/sdb

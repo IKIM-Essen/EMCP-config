@@ -1,3 +1,4 @@
+---
 - name: Include kube-prometheus setup tasks
   block:
     - ansible.builtin.include_tasks: install_kube_prometheus.yml

@@ -1,3 +1,4 @@
+---
 - name: restart sssd service
   ansible.builtin.systemd:
     name: sssd

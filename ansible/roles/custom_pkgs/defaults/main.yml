@@ -1,3 +1,4 @@
+---
 # The paths of the deb packages to install on the target host.
 # If custom_pkgs_archive is defined, the items in custom_pkgs_debs are
 # interpreted as paths in the archive.

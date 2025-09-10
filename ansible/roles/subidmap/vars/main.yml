@@ -1,3 +1,4 @@
+---
 # Allocate 2^16 subordinate IDs for each user as recommended by
 # https://github.com/systemd/systemd/blob/main/docs/UIDS-GIDS.md
 subid_step: 65536

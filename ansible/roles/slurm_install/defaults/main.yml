@@ -1,6 +1,7 @@
+---
 # Inventory group names
 slurm_controller_group_name: slurm_controller
-slurm_worker_group_name: slurm_worker  # includes compute and user-facing nodes
+slurm_worker_group_name: slurm_worker # includes compute and user-facing nodes
 slurm_compute_group_name: slurm_compute
 slurm_dbd_group_name: slurm_database
 
@@ -45,9 +46,9 @@ slurm_reserved_mem_mb: 4096
 # User limits on worker nodes
 slurm_ulimit_memlock_soft: "unlimited"
 slurm_ulimit_memlock_hard: "unlimited"
-slurm_ulimit_nofile_soft: "65536"  # 2^16
-slurm_ulimit_nofile_hard: "131072"  # 2^17
-slurm_ulimit_stack_soft: "67108864"  # 64 GiB
+slurm_ulimit_nofile_soft: "65536" # 2^16
+slurm_ulimit_nofile_hard: "131072" # 2^17
+slurm_ulimit_stack_soft: "67108864" # 64 GiB
 slurm_ulimit_stack_hard: "unlimited"
 
 # Slurmdbd settings

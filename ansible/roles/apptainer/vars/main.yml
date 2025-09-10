@@ -1,1 +1,2 @@
+---
 apptainer_deb_url: "https://github.com/apptainer/apptainer/releases/download/v{{ apptainer_release }}/apptainer_{{ apptainer_release }}_amd64.deb"

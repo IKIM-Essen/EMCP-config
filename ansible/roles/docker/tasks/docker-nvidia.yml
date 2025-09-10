@@ -1,3 +1,4 @@
+---
 - name: Install the container runtime
   ansible.builtin.include_role:
     name: nvidia.nvidia_docker

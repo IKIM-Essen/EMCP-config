@@ -1,11 +1,10 @@
+---
 #
 # setup security
 #
 # add root password as backdoor for console
 # suspend hibernate
 # install admin tools
-
-
 - name: Add root account password
   ansible.builtin.user:
     name: root

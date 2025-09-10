@@ -1,3 +1,4 @@
+---
 - name: Clear the Kerberos ticket
   ansible.builtin.command: kdestroy
   changed_when: true
