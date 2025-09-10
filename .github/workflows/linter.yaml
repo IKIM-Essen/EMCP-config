@@ -21,3 +21,5 @@ jobs:
 
       - name: Lint ansible project
         uses: ansible/ansible-lint@v25
+        with:
+          args: --skip-list yaml[line-length]
