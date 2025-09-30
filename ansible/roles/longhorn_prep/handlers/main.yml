@@ -1,3 +1,4 @@
+---
 - name: Reload multipathd
   become: true
   ansible.builtin.systemd:

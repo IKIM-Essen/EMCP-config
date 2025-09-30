@@ -1,3 +1,4 @@
+---
 # A default gateway is required, even if not used.
 # See https://github.com/rancher/rke2/issues/1242
 main_network: "10.0.0.0"

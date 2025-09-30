@@ -1,3 +1,4 @@
+---
 # per https://help.ubuntu.com/community/AutofsLDAP
 - name: Install prerequisites
   ansible.builtin.apt:

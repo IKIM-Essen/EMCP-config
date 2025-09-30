@@ -1,3 +1,4 @@
+---
 gpu_operator_chart_version: "23.3.1"
 
 # Define the list "nvidia_drain_devices" at the host level to create a boot-time

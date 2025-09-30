@@ -1,5 +1,4 @@
 ---
-
 - name: Ensure user managers have the appropriate permissions
   community.general.ipa_role:
     cn: "{{ ipaserver_settings_item['rolename'] }}"

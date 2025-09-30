@@ -1,2 +1,3 @@
+---
 ipa_storage: /var/lib/ipa-data
 ipa_server_image: freeipa/freeipa-server:centos-8-stream

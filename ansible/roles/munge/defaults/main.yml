@@ -1,3 +1,4 @@
+---
 # Inventory group names
 slurm_controller_group_name: slurm_controller
 slurm_worker_group_name: slurm_worker

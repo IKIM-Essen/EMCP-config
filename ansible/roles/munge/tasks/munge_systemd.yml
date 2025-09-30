@@ -1,3 +1,4 @@
+---
 - name: Install munge
   ansible.builtin.apt:
     name: munge

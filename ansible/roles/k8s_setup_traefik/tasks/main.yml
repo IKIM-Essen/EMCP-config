@@ -1,3 +1,4 @@
+---
 - name: Include metallb install tasks
   block:
     - ansible.builtin.include_tasks: install_metallb.yml

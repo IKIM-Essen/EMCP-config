@@ -1,3 +1,4 @@
+---
 - name: Create a local temp file
   ansible.builtin.tempfile:
     suffix: subidmap

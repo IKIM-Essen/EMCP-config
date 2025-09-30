@@ -1,3 +1,4 @@
+---
 localstorage_mountpoint: /local
 localstorage_scratchdir: "{{ localstorage_mountpoint }}/work"
 

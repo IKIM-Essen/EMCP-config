@@ -1,5 +1,4 @@
 ---
-
 - name: Include ipa services tasks
   block:
     - ansible.builtin.include_tasks: create_services.yml

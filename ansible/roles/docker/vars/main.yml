@@ -1,3 +1,4 @@
+---
 docker_signing_key_directory: "/etc/apt/keyrings"
 docker_signing_key_path: "{{ docker_signing_key_directory }}/docker-gpg.asc"
 

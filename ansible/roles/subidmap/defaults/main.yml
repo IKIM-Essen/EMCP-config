@@ -1,3 +1,4 @@
+---
 # Allocate subordinate IDs for the first 4096 IPA users. This is an arbitrary
 # value that should cover all the actual users while leaving some IDs
 # purposefully unused.

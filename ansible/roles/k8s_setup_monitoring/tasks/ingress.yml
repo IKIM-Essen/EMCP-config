@@ -1,3 +1,4 @@
+---
 - name: Create monitoring auth secret
   kubernetes.core.k8s:
     state: present

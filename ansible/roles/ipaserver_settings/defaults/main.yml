@@ -1,3 +1,4 @@
+---
 ipa_default_shell: /bin/bash
 
 # List of automount mappings

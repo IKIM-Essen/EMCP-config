@@ -1,3 +1,4 @@
+---
 - name: Check if swap is enabled
   ansible.builtin.command: cat /proc/swaps
   register: rke2_proc_swap
@@ -21,8 +22,8 @@
 - name: Comment out the swap line in /etc/fstab
   ansible.builtin.replace:
     path: /etc/fstab
-    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
-    replace: '# \1'
+    regexp: "^([^#].*?\\sswap\\s+sw\\s+.*)$"
+    replace: "# \\1"
 
 - name: Mask the swap unit file
   ansible.builtin.systemd:

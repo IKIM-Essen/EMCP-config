@@ -1,3 +1,4 @@
+---
 default_shell: /bin/bash
 
 # To create local administrators, define the localadmins dictionary as shown

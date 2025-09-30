@@ -1,5 +1,4 @@
 ---
-
 - name: Reload the systemd configuration and restart the Docker unit
   ansible.builtin.systemd:
     name: docker

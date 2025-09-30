@@ -1,3 +1,4 @@
+---
 - name: Install cachefilesd
   ansible.builtin.apt:
     name: cachefilesd
@@ -60,7 +61,7 @@
 - name: Enable cachefilesd
   ansible.builtin.lineinfile:
     path: /etc/default/cachefilesd
-    regexp: '^#?RUN='
+    regexp: "^#?RUN="
     line: "RUN={{ 'yes' if cachefilesd_enabled else 'no' }}"
     owner: root
     group: root

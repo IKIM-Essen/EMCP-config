@@ -1,3 +1,4 @@
+---
 - name: Tweak kernel parameters with sysctl
   ansible.posix.sysctl:
     name: "{{ rke2_prep_item['name'] }}"

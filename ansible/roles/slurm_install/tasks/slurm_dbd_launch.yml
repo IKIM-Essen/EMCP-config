@@ -1,3 +1,4 @@
+---
 - name: Add the main configuration file
   ansible.builtin.template:
     src: slurmdbd.conf.j2
@@ -16,7 +17,7 @@
     group: "{{ slurm_user_name }}"
 
 - name: Start the database daemon
-  ignore_errors: true  # noqa: ignore-errors
+  ignore_errors: true # noqa: ignore-errors
   community.general.supervisorctl:
     name: slurmdbd
     state: started

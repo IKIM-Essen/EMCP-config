@@ -1,5 +1,4 @@
 ---
-
 - name: Ensure directory structure is present
   ansible.builtin.file:
     path: "{{ software_share_root }}/{{ nfs_shares_item }}"

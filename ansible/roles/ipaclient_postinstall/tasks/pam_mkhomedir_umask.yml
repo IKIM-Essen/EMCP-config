@@ -3,5 +3,5 @@
   ansible.builtin.lineinfile:
     path: /etc/pam.d/common-session
     backrefs: true
-    regexp: '^session(.*)pam_mkhomedir.so$'
-    line: 'session\1pam_mkhomedir.so umask=0027'
+    regexp: "^session(.*)pam_mkhomedir.so$"
+    line: "session\\1pam_mkhomedir.so umask=0027"

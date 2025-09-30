@@ -1,3 +1,4 @@
+---
 - name: Install nvtop
   ansible.builtin.apt:
     name:

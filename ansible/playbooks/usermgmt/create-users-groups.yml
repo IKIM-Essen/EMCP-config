@@ -2,8 +2,8 @@
 - hosts: localhost
   gather_facts: false
   vars:
-    # userglob: ../../../../IKIM-config/ansible/userdata/users/*.yml
-    # groupglob: ../../../../IKIM-config/ansible/userdata/groups/*.yml
+  # userglob: ../../../../IKIM-config/ansible/userdata/users/*.yml
+  # groupglob: ../../../../IKIM-config/ansible/userdata/groups/*.yml
   tasks:
     - name: Load users
       ansible.builtin.include_tasks: tasks/load-user.yml

@@ -1,5 +1,4 @@
 ---
-
 - name: Partition the 2nd drive
   community.general.parted:
     device: /dev/sdb

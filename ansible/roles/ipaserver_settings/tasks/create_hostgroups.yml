@@ -1,5 +1,4 @@
 ---
-
 - name: Ensure that hostgroups are present
   community.general.ipa_hostgroup:
     name: "{{ ipaserver_settings_item['name'] }}"

@@ -1,3 +1,4 @@
+---
 proxy_env_filename: proxy.sh
 http_proxy_host: proxy.example.org
 http_proxy_port: "3128"

@@ -1,7 +1,8 @@
+---
 - name: Modify sssd.conf to avoid blocking the sssd responder sockets
   ansible.builtin.lineinfile:
     path: /etc/sssd/sssd.conf
     state: absent
-    regexp: '^services ='
+    regexp: "^services ="
   notify: restart sssd service
   become: true

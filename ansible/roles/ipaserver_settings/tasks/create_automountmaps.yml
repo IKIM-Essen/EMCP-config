@@ -1,5 +1,4 @@
 ---
-
 - name: Install dependencies
   ansible.builtin.apt:
     name: python3-docker
@@ -18,7 +17,6 @@
   become: true
   changed_when: false
   register: ipaserver_settings_automountmap_search
-
 
 - name: Create the automount map
   community.docker.docker_container_exec:

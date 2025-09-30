@@ -1,3 +1,4 @@
+---
 # The system user that runs slurmctld and slurmdbd.
 # It is set to "slurm", which is the account created by the Ubuntu package.
 # If changed, the account must exist with the same UID on the slurmctld and
